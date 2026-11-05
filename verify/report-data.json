@@ -1,0 +1,196 @@
+{
+  "steps": [
+    "01 首页截图",
+    "02 十连演出中截图",
+    "03 十连结果截图",
+    "截图 1: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\01-home.png",
+    "截图 2: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\06-recharge.png",
+    "截图 3: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\02-anim.png",
+    "截图 4: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\03-ten.png",
+    "截图 5: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\05-stats.png",
+    "截图 6: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\04-rates.png",
+    "截图 7: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\07-bag.png",
+    "截图 8: C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\08-legend.png"
+  ],
+  "checks": [
+    {
+      "name": "视口 1600x900",
+      "pass": true,
+      "detail": "{\"iw\":1600,\"ih\":900,\"sw\":1600,\"sh\":900,\"bw\":1600,\"bh\":900}"
+    },
+    {
+      "name": "页面无溢出",
+      "pass": true,
+      "detail": "scroll 1600x900"
+    },
+    {
+      "name": "左栏保底与充值区完整可见",
+      "pass": true,
+      "detail": "{\"qrBottom\":868,\"panelBottom\":882,\"panelTop\":431,\"qrTop\":762,\"scrollTop\":469,\"qrH\":106,\"scrollCh\":283,\"scrollSh\":283}"
+    },
+    {
+      "name": "初始余额",
+      "pass": true,
+      "detail": "balance=3600 localStorage=空"
+    },
+    {
+      "name": "充值弹层含虚拟声明",
+      "pass": true,
+      "detail": "仅作娱乐演示：点击任意档位会立即发放虚拟星币，不接入任何真实支付、不跳转任何支付"
+    },
+    {
+      "name": "十连展示 10 张卡且全部翻开",
+      "pass": true,
+      "detail": "10/10"
+    },
+    {
+      "name": "十连结果区未溢出舞台",
+      "pass": true,
+      "detail": "{\"gridH\":326,\"stageH\":450,\"gridW\":770,\"stageW\":1196}"
+    },
+    {
+      "name": "重置后清空统计与背包",
+      "pass": true,
+      "detail": "opens=0 balance=3600"
+    },
+    {
+      "name": "1000 次单开执行成功",
+      "pass": true,
+      "detail": "{\"ok\":true,\"opens\":1000,\"triggers\":{\"legend\":1,\"tenRare\":0},\"balance\":3600}"
+    },
+    {
+      "name": "余额扣减正确",
+      "pass": true,
+      "detail": "balance=3600"
+    },
+    {
+      "name": "背包数量与开箱数一致",
+      "pass": true,
+      "detail": "inventory=1000"
+    },
+    {
+      "name": "稀有度统计与开箱数一致",
+      "pass": true,
+      "detail": "sum=1000 opens=1000"
+    },
+    {
+      "name": "按箱体记录正确",
+      "pass": true,
+      "detail": "c3=1000"
+    },
+    {
+      "name": "统计页无溢出",
+      "pass": true,
+      "detail": "{\"sw\":1600,\"sh\":900}"
+    },
+    {
+      "name": "概率公示可展开物品权重",
+      "pass": true,
+      "detail": "items=15"
+    },
+    {
+      "name": "概率公示展开后完整可见",
+      "pass": true,
+      "detail": "{\"ch\":291,\"sh\":291}"
+    },
+    {
+      "name": "刷新后 localStorage 存档保留",
+      "pass": true,
+      "detail": "balance=3600 opens=1000"
+    },
+    {
+      "name": "十连必出稀有及以上（100 批）",
+      "pass": true,
+      "detail": "无稀有批次数=0 十连保底触发=22"
+    },
+    {
+      "name": "关闭保底时权重表与公示基础概率一致（5000 抽）",
+      "pass": true,
+      "detail": "counts={\"common\":2617,\"fine\":1494,\"rare\":652,\"epic\":131,\"legend\":106} 最大相对偏差=12.7%"
+    },
+    {
+      "name": "第 89 抽不强制传说",
+      "pass": true,
+      "detail": "triggers=0"
+    },
+    {
+      "name": "第 90 抽必出传说并清零计数",
+      "pass": true,
+      "detail": "triggers=1 legend+=1 pity=0"
+    },
+    {
+      "name": "传说演出横幅出现",
+      "pass": true,
+      "detail": "banner=true"
+    },
+    {
+      "name": "控制台零报错",
+      "pass": true,
+      "detail": "无"
+    }
+  ],
+  "shots": [
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\01-home.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\06-recharge.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\02-anim.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\03-ten.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\05-stats.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\04-rates.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\07-bag.png",
+    "C:\\Users\\pamphile\\Documents\\Trae-CN\\temp_20261104_01\\screenshots\\08-legend.png"
+  ],
+  "data": {
+    "initial": {
+      "balance": 3600
+    },
+    "after1000": {
+      "balance": 3600,
+      "opens": 1000,
+      "spent": 800000,
+      "byRarity": {
+        "common": 262,
+        "fine": 248,
+        "rare": 278,
+        "epic": 151,
+        "legend": 61
+      },
+      "triggers": {
+        "legend": 1,
+        "tenRare": 0
+      },
+      "pityLegend": 5,
+      "inventoryKinds": 15,
+      "inventoryTotal": 1000
+    },
+    "natural5000": {
+      "common": 2617,
+      "fine": 1494,
+      "rare": 652,
+      "epic": 131,
+      "legend": 106
+    },
+    "c2Pity1000": {
+      "common": 404,
+      "fine": 303,
+      "rare": 187,
+      "epic": 66,
+      "legend": 40
+    },
+    "tenBatch": {
+      "batches": 100,
+      "withoutRare": 0,
+      "triggers": {
+        "legend": 5,
+        "tenRare": 22
+      }
+    },
+    "final": {
+      "common": 263,
+      "fine": 248,
+      "rare": 278,
+      "epic": 151,
+      "legend": 63
+    }
+  },
+  "consoleErrors": []
+}

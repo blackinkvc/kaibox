@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>星轨开箱模拟器 · 虚拟开箱演示</title>
+<style>
+/* ============ 基础 ============ */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;overflow:hidden;background:#05070c;
+  color:var(--text);font:13px/1.55 "Segoe UI","Microsoft YaHei UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;color-scheme:dark;
+}
+:root{
+  --text:#e9eef7;--muted:#8b97ab;--dim:#5f6b7f;
+  --line:rgba(255,255,255,.09);--line-soft:rgba(255,255,255,.06);
+  --gold:#f5c96b;--gold-deep:#b8873a;--cyan:#5ad1ff;
+  --c-common:#8d99ae;--c-fine:#42d392;--c-rare:#3ea8ff;--c-epic:#b26bff;--c-legend:#ffc247;
+}
+button{font-family:inherit}
+[hidden]{display:none!important}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ============ 背景 ============ */
+.bg{position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(900px 620px at 10% -12%,rgba(90,209,255,.16),transparent 62%),
+  radial-gradient(760px 520px at 92% -6%,rgba(255,194,71,.12),transparent 60%),
+  radial-gradient(820px 640px at 52% 118%,rgba(178,107,255,.13),transparent 62%),
+  linear-gradient(180deg,#080b13,#04060a 72%);}
+.bg::after{content:"";position:absolute;inset:0;opacity:.55;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(circle at 50% 26%,#000,transparent 74%);
+  mask-image:radial-gradient(circle at 50% 26%,#000,transparent 74%);}
+
+/* ============ 顶栏 ============ */
+.topbar{height:64px;display:flex;align-items:center;gap:16px;padding:0 20px;position:relative;z-index:6;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(10,14,22,.96),rgba(7,10,16,.78));}
+.brand{display:flex;align-items:center;gap:11px;flex:none}
+.brand-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;color:#ffe6ae;
+  background:linear-gradient(145deg,rgba(255,194,71,.28),rgba(255,194,71,.06));border:1px solid rgba(255,194,71,.4);
+  box-shadow:0 0 22px rgba(255,194,71,.22),inset 0 1px 0 rgba(255,255,255,.16);}
+.brand-text h1{margin:0;font-size:17px;letter-spacing:2px;font-weight:600;line-height:1.2}
+.brand-text p{margin:2px 0 0;font-size:9px;letter-spacing:2.6px;color:var(--dim);text-transform:uppercase}
+.legal{flex:1;min-width:0;text-align:center;font-size:12px;color:#d9b673;letter-spacing:.3px;
+  padding:6px 14px;border-radius:20px;border:1px solid rgba(245,201,107,.18);background:rgba(245,201,107,.05);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.legal i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:8px;vertical-align:middle;box-shadow:0 0 8px var(--gold)}
+.tools{display:flex;align-items:center;gap:8px;flex:none}
+.btn{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
+  padding:8px 13px;border-radius:10px;font-size:12px;transition:background .18s,border-color .18s,transform .12s;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:rgba(255,255,255,.03)}
+.btn.primary{color:#1a1206;font-weight:700;border-color:rgba(255,214,140,.7);
+  background:linear-gradient(180deg,#ffe1a0,#eeb952);box-shadow:0 6px 18px -8px rgba(245,201,107,.8),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.primary:hover{background:linear-gradient(180deg,#fff0c8,#f3c76a)}
+.btn.danger:hover{color:#ff9b9b;border-color:rgba(255,120,120,.4)}
+.wallet{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:10px;
+  border:1px solid rgba(245,201,107,.28);background:rgba(245,201,107,.07);font-variant-numeric:tabular-nums}
+.wallet .coin{color:var(--gold);font-size:13px;text-shadow:0 0 10px rgba(245,201,107,.8)}
+.wallet b{color:#ffe6b0;font-size:15px;letter-spacing:.5px}
+.wallet .unit{color:var(--muted);font-size:11px}
+
+/* ============ 主布局 ============ */
+.main{height:calc(100vh - 64px);display:grid;grid-template-columns:352px minmax(0,1fr);gap:14px;
+  padding:14px 18px 18px;min-height:0}
+.left{display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;min-height:0}
+.right{display:grid;grid-template-rows:minmax(0,1fr) 340px;gap:12px;min-height:0}
+.panel{border:1px solid var(--line);border-radius:16px;min-height:0;
+  background:linear-gradient(180deg,rgba(20,27,42,.92),rgba(11,15,25,.88));
+  box-shadow:0 24px 48px -30px #000,inset 0 1px 0 rgba(255,255,255,.05);}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px 9px}
+.panel-head h2{margin:0;font-size:13px;letter-spacing:1.6px;font-weight:600}
+.panel-head span{font-size:10.5px;color:var(--dim);letter-spacing:.6px}
+
+/* ============ 箱子列表 ============ */
+.crates-panel{display:flex;flex-direction:column}
+.crate-list{display:flex;flex-direction:column;gap:9px;padding:0 12px 13px}
+.crate-card{position:relative;display:block;width:100%;text-align:left;cursor:pointer;color:inherit;
+  padding:11px 13px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.028);transition:border-color .2s,background .2s,transform .16s}
+.crate-card:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05);transform:translateY(-1px)}
+.crate-card.active{border-color:rgba(245,201,107,.5);
+  background:linear-gradient(135deg,rgba(245,201,107,.11),rgba(255,255,255,.02));
+  box-shadow:0 0 0 1px rgba(245,201,107,.2),0 14px 30px -22px rgba(245,201,107,.9)}
+.crate-card.active::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:2px;border-radius:2px;
+  background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.cc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.cc-head b{font-size:13.5px;letter-spacing:.4px}
+.cc-price{font-size:11px;color:#ffe0a6;background:rgba(245,201,107,.12);border:1px solid rgba(245,201,107,.22);
+  padding:2px 7px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ratebar{display:flex;gap:2px;height:6px;border-radius:4px;overflow:hidden;background:#080c14;margin-bottom:8px}
+.ratebar i{display:block;height:100%;opacity:.92;border-radius:1px}
+.cc-rates{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:10.5px;font-style:normal;letter-spacing:.2px}
+.cc-rates em{font-style:normal;opacity:.95}
+
+/* ============ 保底面板 ============ */
+.pity-panel{display:flex;flex-direction:column;overflow:hidden}
+.pity-panel .panel-head{padding:10px 15px 7px}
+.pity-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding-bottom:2px}
+.pity-block{padding:2px 15px 0}
+.pity-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pity-row>span{font-size:12px;color:#c7d1e0}
+.pity-num{font-size:22px;color:#ffe0a0;font-variant-numeric:tabular-nums;letter-spacing:1px;text-shadow:0 0 18px rgba(245,201,107,.4)}
+.pity-num.due{color:#ffd15c;animation:duePulse 1.2s ease-in-out infinite}
+@keyframes duePulse{50%{text-shadow:0 0 24px rgba(255,209,92,.95)}}
+.pity-bar{height:9px;border-radius:6px;background:#070b12;border:1px solid rgba(255,255,255,.07);overflow:hidden;margin:8px 0 5px}
+.pity-fill{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#8a6520,#ffd15c 70%,#fff3c8);
+  box-shadow:0 0 16px rgba(255,201,103,.65);transition:width .35s ease}
+.pity-cap{margin:0;font-size:11px;color:var(--muted);line-height:1.5}
+.pity-divider{height:1px;background:var(--line-soft);margin:9px 0}
+.badge-ok{font-size:10.5px;font-weight:600;color:#8bf0bd;background:rgba(66,211,146,.12);
+  border:1px solid rgba(66,211,146,.3);padding:2px 8px;border-radius:20px;white-space:nowrap}
+.rule-box{margin:9px 13px 10px;padding:9px 11px;border-radius:12px;border:1px solid rgba(90,209,255,.16);
+  background:linear-gradient(180deg,rgba(90,209,255,.06),rgba(90,209,255,.015))}
+.rule-box b{display:block;font-size:11px;letter-spacing:1.2px;color:#9fd8f0;margin-bottom:5px}
+.rule-box ul{margin:0;padding-left:15px;color:var(--muted);font-size:10.6px;line-height:1.55}
+.rule-box strong{color:#d6e2f2;font-weight:600}
+.quick-recharge{flex:0 0 auto;margin:10px 13px 13px;padding:9px 12px 8px;border-radius:12px;
+  border:1px solid rgba(245,201,107,.2);background:linear-gradient(180deg,rgba(245,201,107,.075),rgba(245,201,107,.02))}
+.qr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.qr-head b{font-size:11px;letter-spacing:1.2px;color:#ffdca0}
+.qr-head span{font-size:9.5px;color:var(--dim)}
+.qr-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.qr-tiers button{cursor:pointer;border-radius:8px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);color:#ffe6b0;padding:6px 4px;font-size:10.5px;line-height:1.4;transition:.16s}
+.qr-tiers button:hover{border-color:rgba(245,201,107,.5);background:rgba(245,201,107,.12)}
+.qr-tiers em{display:block;font-style:normal;font-size:9px;color:var(--dim)}
+.qr-note{margin:8px 0 0;font-size:9.5px;color:var(--dim);line-height:1.5}
+
+/* ============ 舞台 ============ */
+.stage{position:relative;border-radius:18px;overflow:hidden;min-height:0;
+  border:1px solid var(--line);
+  background:radial-gradient(118% 92% at 50% -6%,var(--accent-soft,rgba(90,209,255,.14)),rgba(10,14,22,.92) 58%),
+             linear-gradient(180deg,rgba(17,24,38,.9),rgba(7,10,17,.96));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 26px 60px -40px #000;}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(70% 60% at 50% 46%,transparent 40%,rgba(0,0,0,.55) 100%)}
+.stage-grid{position:absolute;inset:0;opacity:.35;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:40px 40px;
+  -webkit-mask-image:radial-gradient(60% 60% at 50% 45%,#000,transparent 78%);
+  mask-image:radial-gradient(60% 60% at 50% 45%,#000,transparent 78%);}
+
+.stage-idle{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:11px;padding:10px 16px 16px}
+.crate-art{width:146px;height:146px;position:relative;flex:none}
+.crate-art svg{width:100%;height:100%;overflow:visible}
+.crate-art::before{content:"";position:absolute;inset:8%;border-radius:50%;
+  background:radial-gradient(circle,var(--accent-soft,rgba(90,209,255,.3)),transparent 68%);filter:blur(14px)}
+.crate-art svg .face-top{fill:rgba(255,255,255,.14)}
+.crate-art svg .face-left{fill:rgba(2,4,9,.5)}
+.crate-art svg .face-right{fill:rgba(2,4,9,.3)}
+.crate-art svg .edge{fill:none;stroke:var(--accent,#5ad1ff);stroke-width:1.8;opacity:.9;
+  filter:drop-shadow(0 0 5px var(--accent,#5ad1ff))}
+.crate-art svg .seam{fill:none;stroke:var(--accent,#5ad1ff);stroke-width:1;opacity:.35}
+.crate-art svg .gem{fill:var(--accent,#5ad1ff);filter:drop-shadow(0 0 12px var(--accent,#5ad1ff))}
+.crate-art svg .gem-line{stroke:rgba(0,0,0,.45);stroke-width:1.2;fill:none}
+.idle-title{margin:2px 0 0;font-size:20px;letter-spacing:2px;font-weight:600}
+.idle-desc{margin:0;font-size:11.5px;color:var(--muted);max-width:520px;text-align:center}
+.idle-odds{font-size:11px;color:var(--dim);letter-spacing:.4px}
+.idle-odds b{font-weight:600}
+.open-actions{display:flex;gap:12px;margin-top:4px}
+.btn-open{position:relative;cursor:pointer;width:186px;height:54px;border-radius:13px;padding:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  border:1px solid rgba(255,255,255,.16);color:var(--text);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
+  box-shadow:0 12px 26px -18px #000,inset 0 1px 0 rgba(255,255,255,.12);
+  transition:transform .14s,border-color .18s,box-shadow .18s;overflow:hidden}
+.btn-open span{font-size:15px;letter-spacing:3px;font-weight:600}
+.btn-open small{font-size:10.5px;color:#c8d3e2;letter-spacing:.6px}
+.btn-open:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.34);box-shadow:0 16px 32px -16px #000}
+.btn-open:active{transform:translateY(0)}
+.btn-open.hot{border-color:rgba(245,201,107,.55);color:#ffe9bd;
+  background:linear-gradient(180deg,rgba(245,201,107,.26),rgba(245,201,107,.07));
+  box-shadow:0 0 26px -8px rgba(245,201,107,.55),inset 0 1px 0 rgba(255,255,255,.2)}
+.btn-open.hot::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent 38%,rgba(255,255,255,.28) 50%,transparent 62%);
+  transform:translateX(-120%);animation:sheen 3.4s ease-in-out infinite}
+@keyframes sheen{55%{transform:translateX(120%)}100%{transform:translateX(120%)}}
+.idle-foot{display:flex;align-items:center;gap:14px;margin-top:3px}
+.switch{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:11.5px;color:var(--muted)}
+.switch input{position:absolute;opacity:0;pointer-events:none}
+.switch i{width:32px;height:18px;border-radius:10px;background:rgba(255,255,255,.12);position:relative;transition:background .2s}
+.switch i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#8e9aae;transition:.2s}
+.switch input:checked+i{background:rgba(245,201,107,.28)}
+.switch input:checked+i::after{transform:translateX(14px);background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.hint{font-size:11px;color:#ff9a9a}
+
+/* 演出 */
+.stage-anim{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.anim-crate{width:170px;height:170px;z-index:3}
+.anim-crate.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97) infinite;
+  filter:drop-shadow(0 0 28px var(--accent,#5ad1ff)) brightness(1.25)}
+@keyframes shake{
+  0%,100%{transform:translate(0,0) rotate(0)}
+  20%{transform:translate(-4px,2px) rotate(-1.6deg)}
+  40%{transform:translate(5px,-3px) rotate(2deg)}
+  60%{transform:translate(-5px,-1px) rotate(-1.2deg)}
+  80%{transform:translate(4px,3px) rotate(1.4deg)}
+}
+.anim-ring{position:absolute;width:250px;height:250px;border-radius:50%;z-index:2;
+  border:1px dashed rgba(255,255,255,.18);animation:ringSpin 6s linear infinite}
+.anim-ring::after{content:"";position:absolute;inset:22px;border-radius:50%;border:1px solid rgba(255,255,255,.08)}
+@keyframes ringSpin{to{transform:rotate(360deg)}}
+.pillar{position:absolute;left:50%;bottom:0;width:190px;height:96%;z-index:1;opacity:0;
+  transform:translateX(-50%) scaleY(.15);transform-origin:bottom center;
+  background:linear-gradient(to top,var(--pc,#5ad1ff) -10%,color-mix(in srgb,var(--pc,#5ad1ff) 55%,transparent) 45%,transparent 86%);
+  filter:blur(16px)}
+.pillar.show{animation:pillarRise .95s ease-out forwards}
+@keyframes pillarRise{60%{opacity:.85}100%{opacity:.55;transform:translateX(-50%) scaleY(1)}}
+.rays{position:absolute;width:560px;height:560px;border-radius:50%;opacity:0;z-index:1;
+  background:conic-gradient(from 0deg,transparent 0deg,var(--pc,#ffc247) 4deg,transparent 9deg,transparent 45deg,var(--pc,#ffc247) 49deg,transparent 54deg,transparent 90deg,var(--pc,#ffc247) 94deg,transparent 99deg,transparent 135deg,var(--pc,#ffc247) 139deg,transparent 144deg,transparent 180deg,var(--pc,#ffc247) 184deg,transparent 189deg,transparent 225deg,var(--pc,#ffc247) 229deg,transparent 234deg,transparent 270deg,var(--pc,#ffc247) 274deg,transparent 279deg,transparent 315deg,var(--pc,#ffc247) 319deg,transparent 324deg,transparent 360deg);
+  -webkit-mask-image:radial-gradient(circle,transparent 26%,#000 46%,transparent 72%);
+  mask-image:radial-gradient(circle,transparent 26%,#000 46%,transparent 72%);
+  filter:blur(2px)}
+.rays.show{animation:raysIn 1.4s ease-out forwards, raysSpin 12s linear infinite}
+@keyframes raysIn{from{opacity:0;transform:scale(.7) rotate(-14deg)}to{opacity:.75;transform:scale(1) rotate(0)}}
+@keyframes raysSpin{to{transform:rotate(360deg)}}
+.flash{position:absolute;inset:0;z-index:4;opacity:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 52%,var(--pc,#5ad1ff),transparent 58%)}
+.flash.show{animation:flashBurst .8s ease-out}
+@keyframes flashBurst{0%{opacity:0}18%{opacity:.62}100%{opacity:0}}
+.anim-label{position:absolute;top:22px;left:0;right:0;text-align:center;z-index:5;
+  font-size:12px;letter-spacing:3px;color:#cfe0f2;text-shadow:0 0 14px rgba(120,190,255,.6)}
+.legend-banner{position:absolute;z-index:6;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);
+  opacity:0;font-size:46px;font-weight:800;letter-spacing:14px;padding-left:14px;
+  color:#fff3cb;text-shadow:0 0 14px #ffc247,0 0 46px rgba(255,194,71,.9),0 0 90px rgba(255,194,71,.5);
+  pointer-events:none;white-space:nowrap}
+.legend-banner.show{animation:bannerIn 1.6s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes bannerIn{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}
+  22%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}
+  72%{opacity:1;transform:translate(-50%,-58%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-72%) scale(1.02)}
+}
+.btn-skip{position:absolute;right:14px;bottom:14px;z-index:7;cursor:pointer;font-size:11.5px;
+  color:#cfd9e7;background:rgba(10,15,24,.7);border:1px solid rgba(255,255,255,.16);
+  border-radius:8px;padding:6px 12px}
+.btn-skip:hover{background:rgba(255,255,255,.12)}
+
+/* 结果 */
+.stage-result{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;
+  gap:8px;padding:12px 18px 12px}
+.result-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;min-height:24px}
+.rh-label{font-size:11px;letter-spacing:2px;color:var(--dim)}
+.rh-top{font-size:12.5px;font-weight:600;letter-spacing:.6px}
+.rh-chip{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid rgba(245,201,107,.35);
+  color:#ffdf9f;background:rgba(245,201,107,.1)}
+.rh-cost{font-size:10.5px;color:var(--dim)}
+.result-grid{display:grid;grid-template-columns:repeat(5,146px);grid-auto-rows:158px;gap:10px;justify-content:center}
+.result-grid.single{grid-template-columns:206px;grid-auto-rows:252px}
+.result-grid.instant .card-inner{transition:none}
+.card{position:relative;perspective:900px}
+.card-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.85,.3,1)}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;overflow:hidden}
+.card-back{border:1px solid rgba(255,255,255,.1);
+  background:
+    repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 8px,rgba(255,255,255,0) 8px 16px),
+    linear-gradient(160deg,#141c2c,#0a0e18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.card-back .back-mark{font-size:30px;color:rgba(245,201,107,.5);text-shadow:0 0 16px rgba(245,201,107,.35)}
+.card-back small{font-size:7.5px;letter-spacing:3px;color:rgba(255,255,255,.22)}
+.card-front{transform:rotateY(180deg);border:1px solid var(--rc,rgba(255,255,255,.2));
+  background:radial-gradient(120% 100% at 50% 0%,var(--rc-bg,rgba(255,255,255,.05)),rgba(9,13,21,.98) 68%);
+  box-shadow:inset 0 0 26px var(--rc-soft,transparent),0 12px 26px -18px #000}
+.card-icon svg{width:42px;height:42px;fill:none;stroke:var(--rc,#fff);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 8px var(--rc-soft,#fff))}
+.card-name{font-size:12px;color:#eef3fb;letter-spacing:.5px;text-align:center;padding:0 6px;line-height:1.2}
+.card-rarity{font-size:9.5px;letter-spacing:2px;color:var(--rc,#fff);opacity:.95;font-weight:600}
+.single .card-name{font-size:15px}
+.single .card-icon svg{width:58px;height:58px}
+.single .card-rarity{font-size:11px}
+.card.rarity-legend .card-front{animation:legendGlow 1.8s ease-in-out infinite}
+@keyframes legendGlow{50%{box-shadow:inset 0 0 34px rgba(255,194,71,.5),0 0 26px rgba(255,194,71,.45)}}
+.card.rarity-legend .card-front::after{content:"";position:absolute;inset:-40%;
+  background:linear-gradient(100deg,transparent 42%,rgba(255,236,180,.3) 50%,transparent 58%);
+  transform:translateX(-70%);animation:cardSheen 2.6s ease-in-out infinite}
+@keyframes cardSheen{55%{transform:translateX(70%)}100%{transform:translateX(70%)}}
+.card.rarity-epic .card-front::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--rc),transparent);opacity:.8}
+.sparks{position:absolute;inset:0;pointer-events:none;z-index:5}
+.sparks i{position:absolute;left:50%;top:50%;width:3px;height:3px;border-radius:50%;background:#fff8dd;
+  box-shadow:0 0 8px #ffd76a;transform:rotate(var(--a)) translateX(0);animation:sparkFly .9s ease-out forwards}
+@keyframes sparkFly{to{transform:rotate(var(--a)) translateX(var(--d));opacity:0}}
+.result-actions{display:flex;gap:9px;margin-top:auto;padding-bottom:2px}
+
+/* ============ 底部面板 ============ */
+.bottom{display:flex;flex-direction:column}
+.tabs{display:flex;align-items:center;gap:5px;padding:8px 10px;border-bottom:1px solid var(--line-soft);flex:none}
+.tab{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+  padding:6px 13px;border-radius:8px;font-size:12px;letter-spacing:.6px;transition:.16s}
+.tab:hover{color:#dfe8f5;background:rgba(255,255,255,.05)}
+.tab.active{color:#fff;background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.tab-spacer{flex:1}
+.save-hint{font-size:10.5px;color:var(--dim);letter-spacing:.5px;padding-right:4px}
+.tab-body{position:relative;flex:1;min-height:0}
+.pane{position:absolute;inset:0;display:none;overflow:auto;padding:10px 14px 10px}
+.pane.active{display:block}
+.pane-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{cursor:pointer;font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:4px 12px;transition:.16s}
+.chip:hover{color:#e6eefb;border-color:rgba(255,255,255,.2)}
+.chip.active{color:#181206;font-weight:600;background:linear-gradient(180deg,#ffe1a0,#eeb952);border-color:rgba(255,214,140,.7)}
+.pane-meta{font-size:10.5px;color:var(--dim);letter-spacing:.4px}
+.empty{text-align:center;color:var(--dim);font-size:12px;padding:26px 0}
+.bag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));gap:8px}
+.bag-item{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.028);position:relative;overflow:hidden}
+.bag-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--rc);opacity:.8}
+.bag-icon{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:9px;
+  background:var(--rc-bg);border:1px solid var(--rc-soft)}
+.bag-icon svg{width:19px;height:19px;fill:none;stroke:var(--rc);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bag-main{min-width:0;flex:1}
+.bag-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bag-sub{font-size:9.5px;color:var(--rc);letter-spacing:1.2px}
+.bag-count{font-size:13px;color:#e6eefb;font-variant-numeric:tabular-nums;flex:none}
+.bag-count small{font-size:9.5px;color:var(--dim);margin-right:2px}
+
+.history-list{display:flex;flex-direction:column}
+.hrow{display:flex;align-items:flex-start;gap:10px;padding:7px 8px;border-bottom:1px dashed rgba(255,255,255,.055);font-size:11.5px}
+.hrow:hover{background:rgba(255,255,255,.025)}
+.h-time{width:124px;flex:none;color:var(--dim);font-variant-numeric:tabular-nums;font-size:10.5px;padding-top:2px}
+.h-crate{width:82px;flex:none;color:#c7d2e3}
+.h-count{width:38px;flex:none;color:var(--dim);font-size:10.5px;padding-top:2px}
+.h-items{display:flex;flex-wrap:wrap;gap:4px;flex:1;min-width:0}
+.hitem{font-size:10.5px;padding:1px 6px;border-radius:5px;border:1px solid var(--rc-soft);background:var(--rc-bg);color:var(--rc)}
+.h-top{flex:none;font-size:10.5px;font-weight:600;letter-spacing:1px;padding-top:2px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:10px}
+.kpi{padding:9px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))}
+.kpi span{display:block;font-size:10px;color:var(--dim);letter-spacing:1px;margin-bottom:2px}
+.kpi b{font-size:19px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.kpi b small{font-size:10px;color:var(--muted);font-weight:400;margin-left:3px}
+.stats-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.stats-table th{text-align:right;font-weight:500;font-size:10px;letter-spacing:1px;color:var(--dim);
+  padding:0 8px 6px;border-bottom:1px solid var(--line-soft)}
+.stats-table th:first-child,.stats-table td:first-child{text-align:left}
+.stats-table td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-variant-numeric:tabular-nums}
+.rate-cell{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.rate-cell .bar{width:78px;height:5px;border-radius:3px;background:#0a0f18;overflow:hidden;flex:none}
+.rate-cell .bar i{display:block;height:100%;border-radius:3px}
+.diff.up{color:#ffcf6a}.diff.down{color:#7fc4ff}.diff.zero{color:var(--dim)}
+.foot-note{margin:9px 0 0;font-size:10.5px;color:var(--dim);line-height:1.7}
+
+.rate-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:9px}
+.rs-cell{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:9px;min-width:0;
+  border:1px solid var(--rc-soft);background:var(--rc-bg);font-size:11px}
+.rs-cell i{width:6px;height:6px;border-radius:2px;background:var(--rc);flex:none}
+.rs-cell span{color:var(--rc);white-space:nowrap}
+.rs-cell b{margin-left:auto;color:#fff;font-size:12px;font-variant-numeric:tabular-nums}
+.rs-cell em{font-style:normal;color:var(--dim);font-size:9.5px;white-space:nowrap}
+details.rate-detail{border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.02);margin-top:2px}
+details.rate-detail summary{cursor:pointer;padding:7px 11px;font-size:11px;color:#b9c6d8;list-style:none}
+details.rate-detail summary::-webkit-details-marker{display:none}
+details.rate-detail summary::marker{content:""}
+details.rate-detail summary::after{content:"展开 ▾";float:right;color:var(--dim);font-size:10px}
+details.rate-detail[open] summary::after{content:"收起 ▴"}
+.rate-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 16px;padding:3px 11px 9px}
+.rate-item{display:flex;align-items:center;gap:7px;padding:2px 0;font-size:10.5px;min-width:0;
+  border-top:1px dashed rgba(255,255,255,.05)}
+.rate-item .ri-icon{width:17px;height:17px;flex:none}
+.rate-item .ri-icon svg{width:100%;height:100%;fill:none;stroke:var(--rc);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.rate-item .ri-name{flex:1;min-width:0;color:#cfdaea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rate-item .ri-rarity{font-size:9px;color:var(--rc);letter-spacing:.5px;flex:none}
+.rate-item .ri-weight{color:#8fa0b8;font-variant-numeric:tabular-nums;flex:none}
+.rate-item .ri-pct{width:48px;text-align:right;color:#e2ebf7;font-variant-numeric:tabular-nums;flex:none}
+
+/* ============ 弹层 / 提示 ============ */
+.modal-mask{position:fixed;inset:0;z-index:30;display:grid;place-items:center;
+  background:rgba(3,5,9,.72);backdrop-filter:blur(6px)}
+.modal{width:520px;max-width:92vw;border-radius:16px;border:1px solid rgba(255,255,255,.14);overflow:hidden;
+  background:linear-gradient(180deg,#161f30,#0b0f18);
+  box-shadow:0 40px 80px -30px #000,inset 0 1px 0 rgba(255,255,255,.1);animation:modalIn .22s ease-out}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line-soft)}
+.modal-head h3{margin:0;font-size:15px;letter-spacing:2px}
+.modal-close{cursor:pointer;background:transparent;border:none;color:var(--muted);font-size:20px;line-height:1;padding:2px 6px}
+.modal-close:hover{color:#fff}
+.modal-body{padding:14px 18px 16px}
+.warn{margin:0 0 12px;padding:9px 12px;border-radius:9px;font-size:11px;line-height:1.65;color:#ffdca0;
+  border:1px solid rgba(245,201,107,.32);background:rgba(245,201,107,.08)}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tier{cursor:pointer;padding:11px 8px 9px;border-radius:10px;text-align:center;color:var(--text);
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);transition:.16s}
+.tier:hover{border-color:rgba(245,201,107,.5);background:rgba(245,201,107,.1);transform:translateY(-1px)}
+.tier b{display:block;font-size:16px;color:#ffe6b0;font-variant-numeric:tabular-nums}
+.tier span{display:block;font-size:9.5px;color:var(--muted);letter-spacing:1px}
+.tier em{display:block;margin-top:3px;font-style:normal;font-size:9.5px;color:var(--dim)}
+.modal-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--muted)}
+.modal-foot b{color:var(--gold);font-size:14px;font-variant-numeric:tabular-nums}
+.btn-sm{padding:6px 12px;font-size:11px}
+.mask-note{margin:10px 0 0;font-size:10px;color:var(--dim);line-height:1.7}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,12px);z-index:40;opacity:0;pointer-events:none;
+  padding:9px 16px;border-radius:10px;font-size:12px;color:#f0f5ff;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.18);background:rgba(16,22,34,.95);box-shadow:0 18px 40px -18px #000;
+  transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ============ 触控基础 ============ */
+button,.chip,.tab,.crate-card,.switch,.tier,.qr-tiers button,.btn-skip,.modal-close{
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+body{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
+.swipe-hint{display:none}
+
+/* ============ 低性能模式 ============ */
+body.perf-low .rays,
+body.perf-low .stage-grid,
+body.perf-low .bg::after{display:none}
+body.perf-low .pillar{filter:blur(9px)}
+body.perf-low .flash{animation-duration:.5s}
+body.perf-low .card.rarity-legend .card-front::after,
+body.perf-low .btn-open.hot::after{animation:none}
+body.perf-low .card.rarity-legend .card-front{animation:none}
+body.perf-low .sparks i:nth-child(n+7){display:none}
+body.perf-low .anim-crate.shake{animation-duration:.62s;filter:drop-shadow(0 0 16px var(--accent)) brightness(1.15)}
+
+/* ============ 移动端布局 ============ */
+@media (max-width:900px){
+  html,body{height:auto;min-height:100%}
+  body{overflow:visible;overflow-x:hidden}
+
+  /* 顶栏：品牌 + 钱包 + 充值 一行，音效/重置/合规提示一行 */
+  .topbar{height:auto;flex-wrap:wrap;gap:6px 8px;padding:8px 10px calc(8px + env(safe-area-inset-top)/2);
+    position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);
+    background:linear-gradient(180deg,rgba(9,13,21,.985),rgba(7,10,16,.93))}
+  .brand{order:1;gap:8px}
+  .brand-mark{width:32px;height:32px;border-radius:10px;font-size:16px}
+  .brand-text h1{font-size:14px;letter-spacing:1px}
+  .brand-text p{display:none}
+  .tools{display:contents}
+  .wallet{order:2;margin-left:auto;min-height:44px;padding:6px 10px}
+  .wallet b{font-size:14px}
+  .wallet .unit{display:none}
+  #btnRecharge{order:3;min-height:44px;padding:0 14px;font-size:12px}
+  #btnSound{order:4;min-width:44px;min-height:44px;padding:0;font-size:0;line-height:1}
+  #btnSound::before{content:"♪";font-size:17px}
+  #btnSound.off{color:#6b7688}
+  #btnReset{order:5;min-width:44px;min-height:44px;padding:0;font-size:0;line-height:1}
+  #btnReset::before{content:"⟲";font-size:17px}
+  #btnReset.armed{color:#ffb3b3;border-color:rgba(255,120,120,.55)}
+  #btnReset.armed::before{content:"!";font-weight:700;font-size:18px}
+  .legal{order:6;flex:1 1 132px;white-space:normal;font-size:10px;line-height:1.45;text-align:left;
+    letter-spacing:0;padding:5px 8px;border-radius:9px}
+  .legal i{width:4px;height:4px;margin-right:5px}
+
+  .main{display:flex;flex-direction:column;height:auto;gap:10px;
+    padding:10px 10px calc(22px + env(safe-area-inset-bottom));min-height:0}
+  .left,.right{display:contents}
+
+  .stage{order:1;flex:none;height:clamp(386px,58svh,480px);border-radius:14px}
+  .crates-panel{order:2}
+  .pity-panel{order:3}
+  .bottom{order:4;height:auto}
+
+  /* 箱子：横向吸附滑动 */
+  .crate-list{flex-direction:row;gap:8px;padding:0 10px 10px;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .crate-list::-webkit-scrollbar{display:none}
+  .crate-card{flex:0 0 238px;min-height:86px;scroll-snap-align:start}
+  .panel-head{padding:11px 12px 8px}
+  .pity-panel .panel-head{padding:10px 13px 6px}
+  .pity-scroll{overflow:visible;padding-bottom:0}
+  .pity-block{padding:2px 13px 0}
+  .rule-box{margin:10px 12px}
+  .quick-recharge{margin:10px 12px 12px}
+  .qr-tiers button{min-height:44px;font-size:11px}
+  .pity-row .badge-ok{display:inline-flex;align-items:center;min-height:24px}
+
+  /* 舞台：竖屏比例重排 */
+  .crate-art{width:104px;height:104px}
+  .stage-idle{gap:9px;padding:12px 14px 14px}
+  .idle-title{font-size:18px}
+  .idle-desc{font-size:11px;max-width:300px}
+  .open-actions{gap:10px;width:100%;justify-content:center;margin-top:2px}
+  .btn-open{width:auto;flex:1 1 0;max-width:176px;height:56px}
+  .idle-foot{gap:12px;min-height:44px;margin-top:0}
+  .switch{min-height:44px;padding:0 2px}
+  .anim-crate{width:126px;height:126px}
+  .anim-ring{width:206px;height:206px}
+  .pillar{width:128px}
+  .rays{width:330px;height:330px}
+  .legend-banner{font-size:29px;letter-spacing:6px;padding-left:6px}
+  .anim-label{top:14px;font-size:11px;letter-spacing:2px}
+  .btn-skip{right:10px;bottom:10px;min-height:44px;padding:0 14px;font-size:12px}
+
+  /* 十连结果：横向吸附翻牌 */
+  .stage-result{padding:8px 0 8px;gap:6px;align-items:stretch}
+  .result-head{gap:5px 8px;padding:0 12px;min-height:20px}
+  .rh-label,.rh-top{font-size:11px}
+  .rh-chip{font-size:9.5px}
+  .rh-cost{font-size:10px}
+  .result-grid{display:flex;flex:1 1 auto;min-height:0;align-items:center;justify-content:flex-start;
+    width:100%;max-width:100%;
+    gap:9px;overflow-x:auto;overflow-y:hidden;padding:2px 12px 6px;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .result-grid::-webkit-scrollbar{height:4px}
+  .result-grid .card{flex:0 0 128px;height:166px;scroll-snap-align:center}
+  .result-grid.single{justify-content:center}
+  .result-grid.single .card{flex:0 0 176px;height:230px}
+  .stage-result.ten .swipe-hint{display:block;font-size:10px;color:var(--dim);letter-spacing:.4px;text-align:center}
+  .result-actions{gap:8px;width:100%;justify-content:center;padding:0 12px 2px}
+  .result-actions .btn{min-height:44px;padding:0 14px;flex:0 1 auto}
+
+  /* 底部面板：随页面滚动，不再内部裁切 */
+  .tabs{overflow-x:auto;flex-wrap:nowrap;gap:4px;padding:8px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;min-height:44px;padding:0 15px;display:inline-flex;align-items:center}
+  .save-hint{display:none}
+  .tab-body{position:static;flex:none}
+  .pane{position:static;inset:auto;overflow:visible;padding:10px 10px 14px}
+  .pane-toolbar{gap:8px;margin-bottom:8px}
+  .chip{min-height:44px;padding:0 14px;display:inline-flex;align-items:center}
+  .bag-grid{grid-template-columns:repeat(auto-fill,minmax(152px,1fr))}
+  .bag-item{min-height:48px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi b{font-size:17px}
+  .stats-table{font-size:10.5px}
+  .stats-table th{padding:0 4px 6px}
+  .stats-table td{padding:6px 4px;white-space:nowrap}
+  .rate-cell{gap:5px}
+  .rate-cell .bar{width:42px}
+  .rate-summary{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px}
+  .rs-cell{padding:6px 8px;flex-wrap:wrap;gap:2px 6px}
+  .rs-cell em{flex-basis:100%;margin-left:12px}
+  .rate-items{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0 12px}
+  .rate-item{padding:4px 0}
+  .hrow{flex-wrap:wrap;gap:3px 10px;padding:8px 4px}
+  .h-time{width:auto;font-size:10px}
+  .h-crate,.h-count{width:auto}
+  .h-items{flex-basis:100%;order:9;margin-top:2px}
+  .history-list{font-size:11px}
+  .foot-note{font-size:10px;line-height:1.6}
+  .empty{padding:20px 0}
+
+  /* 弹层：手机上内部滚动，可到底 */
+  .modal-mask{padding:10px;align-items:center}
+  .modal{max-width:calc(100vw - 20px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column}
+  .modal-head{padding:10px 14px}
+  .modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px 14px}
+  .modal-close{min-width:44px;min-height:44px;padding:0;font-size:22px}
+  .warn{font-size:11px;line-height:1.6}
+  .tier{min-height:66px;padding:10px 6px}
+  .modal-foot{flex-wrap:wrap;gap:8px}
+  .modal-foot .btn{min-height:44px}
+  .toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center;line-height:1.5}
+}
+
+@media (max-width:390px){
+  .brand-text h1{font-size:13px;letter-spacing:.5px}
+  .crate-card{flex-basis:224px}
+  .rate-items{grid-template-columns:1fr}
+}
+
+@media (max-width:360px){
+  .brand-text{max-width:104px;overflow:hidden}
+  .brand-text h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .legal{flex-basis:100%}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">✦</div>
+    <div class="brand-text"><h1>星轨开箱模拟器</h1><p>Stellar Crate Simulator</p></div>
+  </div>
+  <div class="legal"><i></i>本模拟器为娱乐用途，充值均为虚拟币，不产生任何真实交易 · 概率与随机数均在本机生成</div>
+  <div class="tools">
+    <button class="btn ghost" id="btnSound">音效：开</button>
+    <div class="wallet"><span class="coin">✦</span><b id="balance">3,600</b><span class="unit">星币</span></div>
+    <button class="btn primary" id="btnRecharge">虚拟充值</button>
+    <button class="btn ghost danger" id="btnReset" title="清空本地存档">重置存档</button>
+  </div>
+</header>
+
+<div class="main">
+  <aside class="left">
+    <section class="panel crates-panel">
+      <div class="panel-head"><h2>箱子</h2><span>3 种奖池</span></div>
+      <div class="crate-list" id="crateList"></div>
+    </section>
+    <section class="panel pity-panel">
+      <div class="panel-head"><h2>保底进度</h2><span>跨箱累计 · 实时</span></div>
+      <div class="pity-scroll">
+      <div class="pity-block">
+        <div class="pity-row"><span>传说保底</span><b class="pity-num" id="pityNum">0 / 90</b></div>
+        <div class="pity-bar"><div class="pity-fill" id="pityFill"></div></div>
+        <p class="pity-cap" id="pityTag">距传说保底 90 抽</p>
+        <div class="pity-divider"></div>
+        <div class="pity-row"><span>十连稀有保底</span><b class="badge-ok" id="tenBadge">必出稀有+</b></div>
+        <p class="pity-cap">每次十连至少 1 件稀有及以上；单开不触发该规则。</p>
+        <div class="pity-divider"></div>
+        <p class="pity-cap" id="triggerLine">已触发：传说保底 0 次 · 十连保底 0 次</p>
+      </div>
+      <div class="rule-box">
+        <b>规则说明</b>
+        <ul>
+          <li>传说保底计数器跨<strong>全部箱子</strong>累计，抽到传说立即清零。</li>
+          <li>若累计第 <strong>90</strong> 抽仍无传说，则该抽强制为传说。</li>
+          <li>十连保底仅在单次十连内结算，不改变单抽概率。</li>
+        </ul>
+      </div>
+      </div>
+      <div class="quick-recharge">
+        <div class="qr-head"><b>虚拟充值</b><span>示意档位</span></div>
+        <div class="qr-tiers" id="quickTiers">
+          <button data-coin="60">60 星币<em>示意 6 元</em></button>
+          <button data-coin="330">330 星币<em>示意 30 元</em></button>
+          <button data-coin="780">780 星币<em>示意 68 元</em></button>
+        </div>
+        <p class="qr-note">娱乐用虚拟币，点击即到账，不产生真实交易。</p>
+      </div>
+    </section>
+  </aside>
+
+  <section class="right">
+    <div class="stage" id="stage">
+      <div class="stage-grid"></div>
+
+      <div class="stage-idle" id="stageIdle">
+        <div class="crate-art" id="crateArt"></div>
+        <h2 class="idle-title" id="idleName">相位强化箱</h2>
+        <p class="idle-desc" id="idleDesc"></p>
+        <div class="idle-odds" id="idleOdds"></div>
+        <div class="open-actions">
+          <button class="btn-open" id="btnOpen1"><span>单开</span><small id="cost1">300 星币</small></button>
+          <button class="btn-open hot" id="btnOpen10"><span>十连</span><small id="cost10">3,000 星币</small></button>
+        </div>
+        <div class="idle-foot">
+          <label class="switch"><input type="checkbox" id="skipAnim"><i></i><span>跳过动画</span></label>
+          <span class="hint" id="stageHint"></span>
+        </div>
+      </div>
+
+      <div class="stage-anim" id="stageAnim" hidden>
+        <div class="pillar" id="pillar"></div>
+        <div class="rays" id="rays"></div>
+        <div class="anim-ring"></div>
+        <div class="crate-art anim-crate" id="animCrate"></div>
+        <div class="anim-label" id="animLabel">正在开启</div>
+        <button class="btn-skip" id="btnSkip">跳过动画 ›</button>
+        <div class="legend-banner" id="legendBanner">传说降临</div>
+        <div class="flash" id="flash"></div>
+      </div>
+
+      <div class="stage-result" id="stageResult" hidden>
+        <div class="result-head" id="resultHead"></div>
+        <div class="result-grid" id="resultGrid"></div>
+        <div class="swipe-hint">← 左右滑动查看全部 →</div>
+        <div class="result-actions">
+          <button class="btn" id="btnAgain1">再单开</button>
+          <button class="btn primary" id="btnAgain10">再来十连</button>
+          <button class="btn ghost" id="btnBack">收起</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="panel bottom">
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="bag">背包</button>
+        <button class="tab" data-tab="history">开箱记录</button>
+        <button class="tab" data-tab="stats">统计</button>
+        <button class="tab" data-tab="rates">概率公示</button>
+        <span class="tab-spacer"></span>
+        <span class="save-hint">存档自动保存于本机浏览器</span>
+      </nav>
+      <div class="tab-body">
+        <div class="pane active" id="pane-bag">
+          <div class="pane-toolbar">
+            <div class="chips" id="bagFilters">
+              <button class="chip active" data-r="all">全部</button>
+              <button class="chip" data-r="common">普通</button>
+              <button class="chip" data-r="fine">精良</button>
+              <button class="chip" data-r="rare">稀有</button>
+              <button class="chip" data-r="epic">史诗</button>
+              <button class="chip" data-r="legend">传说</button>
+            </div>
+            <span class="pane-meta" id="bagMeta">0 件 · 0 种</span>
+          </div>
+          <div class="bag-grid" id="bagGrid"></div>
+          <div class="empty" id="bagEmpty" hidden>背包空空如也，先去开箱试试。</div>
+        </div>
+
+        <div class="pane" id="pane-history">
+          <div class="pane-toolbar">
+            <span class="pane-meta">仅保留最近 200 条记录，统计不受影响</span>
+            <span class="pane-meta" id="historyMeta"></span>
+          </div>
+          <div class="history-list" id="historyList"></div>
+          <div class="empty" id="historyEmpty" hidden>暂无开箱记录。</div>
+        </div>
+
+        <div class="pane" id="pane-stats">
+          <div class="kpis" id="statsKpis"></div>
+          <table class="stats-table">
+            <thead><tr><th>稀有度</th><th>实际次数</th><th>实际出货率</th><th>公示基础率</th><th>差异</th></tr></thead>
+            <tbody id="statsBody"></tbody>
+          </table>
+          <p class="foot-note" id="statsNote"></p>
+        </div>
+
+        <div class="pane" id="pane-rates">
+          <div class="pane-toolbar">
+            <div class="chips" id="rateCrates"></div>
+            <span class="pane-meta">物品权重合计 10000</span>
+          </div>
+          <div id="ratesBody"></div>
+          <p class="foot-note">公示为基础概率，由物品权重按稀有度汇总得出；保底机制会使实际综合出货率略高于基础值（传说档尤其明显）。</p>
+        </div>
+      </div>
+    </section>
+  </section>
+</div>
+<div class="modal-mask" id="modal" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3>虚拟充值</h3>
+      <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="warn">仅作娱乐演示：点击任意档位会立即发放<b>虚拟星币</b>，不接入任何真实支付、不跳转任何支付页面，不产生任何真实交易。</p>
+      <div class="tiers" id="tiers"></div>
+      <div class="modal-foot">
+        <span>当前余额：<b id="modalBalance">3,600</b> 星币</span>
+        <button class="btn ghost btn-sm" id="freeClaim">免费领取 100 星币</button>
+      </div>
+      <p class="mask-note">星币仅保存在本机浏览器的 localStorage 中，无任何货币价值，清除浏览器数据即消失。</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= 数据定义 ================= */
+  const RARITY_ORDER = ['common', 'fine', 'rare', 'epic', 'legend'];
+  const RARITIES = {
+    common: { name: '普通', rank: 0, color: '#8d99ae', soft: 'rgba(141,153,174,.35)', bg: 'rgba(141,153,174,.12)' },
+    fine:   { name: '精良', rank: 1, color: '#42d392', soft: 'rgba(66,211,146,.35)',  bg: 'rgba(66,211,146,.12)' },
+    rare:   { name: '稀有', rank: 2, color: '#3ea8ff', soft: 'rgba(62,168,255,.38)',  bg: 'rgba(62,168,255,.12)' },
+    epic:   { name: '史诗', rank: 3, color: '#b26bff', soft: 'rgba(178,107,255,.38)', bg: 'rgba(178,107,255,.12)' },
+    legend: { name: '传说', rank: 4, color: '#ffc247', soft: 'rgba(255,194,71,.45)',  bg: 'rgba(255,194,71,.14)' }
+  };
+
+  const ICONS = {
+    gear: '<circle cx="24" cy="24" r="8.5"/><circle cx="24" cy="24" r="3"/><path d="M24 7v5M24 36v5M7 24h5M36 24h5M12 12l3.4 3.4M32.6 32.6l3.4 3.4M36 12l-3.4 3.4M12 36l3.4-3.4"/>',
+    bolt: '<path d="M27 5L12 27h9l-3 16 15-22h-9z" fill="currentColor" stroke="none"/>',
+    orb: '<circle cx="24" cy="24" r="10.5"/><circle cx="24" cy="24" r="3.5" fill="currentColor" stroke="none"/><path d="M17.5 13.5a11 11 0 0 1 7-2.5"/>',
+    amulet: '<path d="M24 6l10 12-10 20-10-20z"/><path d="M14 18h20"/><path d="M24 6v32" opacity=".45"/>',
+    fiber: '<path d="M9 30c7-11 23-11 30 0"/><path d="M9 21c7-9 23-9 30 0"/><path d="M9 39c7-9 23-9 30 0"/>',
+    battery: '<rect x="10" y="14" width="24" height="20" rx="3"/><path d="M34 20h4v8h-4"/><path d="M16 20h10v8h-10z" fill="currentColor" stroke="none" opacity=".75"/>',
+    crystal: '<path d="M24 5l12 11-12 27L12 16z"/><path d="M12 16h24M24 5v38"/>',
+    coil: '<path d="M24 6a18 18 0 1 0 0 36"/><path d="M24 13a11 11 0 1 0 0 22"/><circle cx="24" cy="24" r="3.5"/>',
+    chip: '<rect x="14" y="14" width="20" height="20" rx="3"/><path d="M19 14V7M29 14V7M19 34v7M29 34v7M14 19H7M14 29H7M34 19h7M34 29h7"/><circle cx="24" cy="24" r="3"/>',
+    shard: '<path d="M24 5l9 15-9 23-9-23z"/><path d="M15 20h18" opacity=".6"/>',
+    capsule: '<rect x="8" y="17" width="32" height="14" rx="7"/><path d="M24 17v14"/><path d="M8 24h16" opacity=".5"/>',
+    prism: '<path d="M24 7l14 26H10z"/><path d="M24 7v26" opacity=".55"/><path d="M17 20h14" opacity=".55"/>',
+    relic: '<path d="M24 6l5.4 12.4L42 20l-9.8 8.4 3 13.6L24 35.2 12.8 42l3-13.6L6 20l12.6-1.6z"/>',
+    eye: '<path d="M6 24c6-8 12-12 18-12s12 4 18 12c-6 8-12 12-18 12S12 32 6 24z"/><circle cx="24" cy="24" r="5" fill="currentColor" stroke="none"/>',
+    void: '<circle cx="24" cy="24" r="14"/><path d="M24 10a14 14 0 0 1 0 28 10 10 0 0 0 0-20 6 6 0 0 1 0 12"/><circle cx="24" cy="24" r="2" fill="currentColor" stroke="none"/>'
+  };
+
+  const ITEMS = {
+    gear:    { name: '旧齿轮',     rarity: 'common', icon: 'gear' },
+    bolt:    { name: '锈蚀螺栓',   rarity: 'common', icon: 'bolt' },
+    dust:    { name: '能量残渣',   rarity: 'common', icon: 'orb' },
+    amulet:  { name: '铜质护符',   rarity: 'fine',   icon: 'amulet' },
+    fiber:   { name: '合成纤维',   rarity: 'fine',   icon: 'fiber' },
+    cell:    { name: '微型电池',   rarity: 'fine',   icon: 'battery' },
+    crystal: { name: '冷光晶体',   rarity: 'rare',   icon: 'crystal' },
+    coil:    { name: '相位线圈',   rarity: 'rare',   icon: 'coil' },
+    chip:    { name: '记忆芯片',   rarity: 'rare',   icon: 'chip' },
+    shard:   { name: '星核碎片',   rarity: 'epic',   icon: 'shard' },
+    capsule: { name: '反物质胶囊', rarity: 'epic',   icon: 'capsule' },
+    prism:   { name: '虚空棱镜',   rarity: 'epic',   icon: 'prism' },
+    relic:   { name: '星之遗物',   rarity: 'legend', icon: 'relic' },
+    eye:     { name: '溯源之眼',   rarity: 'legend', icon: 'eye' },
+    abyss:   { name: '湮灭之瞳',   rarity: 'legend', icon: 'void' }
+  };
+
+  const CRATES = [
+    {
+      id: 'c1', name: '星尘补给箱', price: 100, accent: '#5ad1ff', accentSoft: 'rgba(90,209,255,.22)',
+      desc: '入门级补给，稳定产出基础材料，传说概率较低但保底同样生效。',
+      items: { gear: 2600, bolt: 1600, dust: 1000, amulet: 1500, fiber: 1000, cell: 500,
+               crystal: 700, coil: 430, chip: 170, shard: 160, capsule: 90, prism: 50, relic: 200 }
+    },
+    {
+      id: 'c2', name: '相位强化箱', price: 300, accent: '#b26bff', accentSoft: 'rgba(178,107,255,.22)',
+      desc: '进阶强化奖池，稀有与史诗权重提升，适合稳定积累高阶藏品。',
+      items: { gear: 2050, bolt: 1300, dust: 750, amulet: 1500, fiber: 1000, cell: 500,
+               crystal: 900, coil: 600, chip: 300, shard: 380, capsule: 220, prism: 100,
+               relic: 250, eye: 150 }
+    },
+    {
+      id: 'c3', name: '湮灭传说箱', price: 800, accent: '#ffc247', accentSoft: 'rgba(255,194,71,.22)',
+      desc: '高阶奖池，传说权重高达 5%，是获取湮灭之瞳的主要途径。',
+      items: { gear: 1300, bolt: 900, dust: 400, amulet: 1400, fiber: 900, cell: 500,
+               crystal: 1400, coil: 900, chip: 400, shard: 700, capsule: 450, prism: 250,
+               relic: 250, eye: 150, abyss: 100 }
+    }
+  ];
+
+  const PITY_LEGEND = 90;
+  const SAVE_KEY = 'stellar_crate_sim_v1';
+  const MAX_HISTORY = 200;
+  const START_BALANCE = 3600;
+  const TIERS = [
+    { coin: 60, yuan: 6 }, { coin: 330, yuan: 30 }, { coin: 780, yuan: 68 },
+    { coin: 1500, yuan: 128 }, { coin: 4000, yuan: 328 }, { coin: 8000, yuan: 648 }
+  ];
+
+  /* ================= 工具 ================= */
+  const $ = function (id) { return document.getElementById(id); };
+  const fmt = function (n) { return (Number(n) || 0).toLocaleString('zh-CN'); };
+  const clamp = function (n, a, b) { return Math.max(a, Math.min(b, n)); };
+  const crateById = function (id) { return CRATES.filter(function (c) { return c.id === id; })[0] || CRATES[0]; };
+
+  const rateCache = {};
+  function crateStats(crate) {
+    if (rateCache[crate.id]) return rateCache[crate.id];
+    const byRarity = {};
+    RARITY_ORDER.forEach(function (r) { byRarity[r] = 0; });
+    let total = 0;
+    Object.keys(crate.items).forEach(function (id) {
+      const w = crate.items[id];
+      total += w;
+      byRarity[ITEMS[id].rarity] += w;
+    });
+    const res = { total: total || 1, byRarity: byRarity };
+    rateCache[crate.id] = res;
+    return res;
+  }
+  function rateOf(crate, rarity) {
+    const s = crateStats(crate);
+    return s.byRarity[rarity] / s.total;
+  }
+
+  /* ================= 低性能模式 ================= */
+  const Perf = {
+    low: false,
+    _fpsN: 0, _fpsT: 0, _fpsBad: 0
+  };
+  Perf.device = function () {
+    let score = 0;
+    try {
+      if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) score++;
+      if (navigator.deviceMemory && navigator.deviceMemory <= 4) score++;
+    } catch (e) {}
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) score++;
+    if (matchMedia('(pointer:coarse)').matches) score++;
+    return score;
+  };
+  Perf.frame = function () {
+    Perf._fpsN++;
+    const now = performance.now();
+    if (now - Perf._fpsT < 1000) return;
+    const fps = Perf._fpsN * 1000 / (now - Perf._fpsT);
+    Perf._fpsN = 0; Perf._fpsT = now;
+    if (fps < 30) Perf._fpsBad++;
+    else if (fps >= 40) Perf._fpsBad = Math.max(0, Perf._fpsBad - 1);
+    if (Perf._fpsBad >= 3) Perf.enter(true);
+  };
+  Perf.enter = function (silent) {
+    if (Perf.low) return;
+    Perf.low = true;
+    document.body.classList.add('perf-low');
+    if (!silent) toast('检测到设备性能较低，已自动开启低性能模式');
+  };
+  function detectLowPerf() {
+    if (Perf.device() >= 3) Perf.enter(true);
+    requestAnimationFrame(function tick() { Perf.frame(); requestAnimationFrame(tick); });
+  }
+
+  function iconSVG(key) {
+    return '<svg viewBox="0 0 48 48" aria-hidden="true">' + (ICONS[key] || ICONS.orb) + '</svg>';
+  }
+
+  function crateSVG() {
+    return '<svg viewBox="0 0 200 200" aria-hidden="true">' +
+      '<polygon class="face-top" points="100,24 170,60 100,96 30,60"/>' +
+      '<polygon class="face-left" points="30,60 100,96 100,172 30,136"/>' +
+      '<polygon class="face-right" points="170,60 100,96 100,172 170,136"/>' +
+      '<polyline class="edge" points="30,60 100,24 170,60 100,96 30,60"/>' +
+      '<line class="edge" x1="100" y1="96" x2="100" y2="172"/>' +
+      '<polyline class="edge" points="30,136 100,172 170,136"/>' +
+      '<line class="seam" x1="30" y1="98" x2="100" y2="134"/>' +
+      '<line class="seam" x1="170" y1="98" x2="100" y2="134"/>' +
+      '<line class="seam" x1="54" y1="72" x2="54" y2="148"/>' +
+      '<line class="seam" x1="146" y1="72" x2="146" y2="148"/>' +
+      '<path class="gem" d="M100 112l9 12-9 12-9-12z"/>' +
+      '<path class="gem-line" d="M100 112v24M91 124h18"/>' +
+      '</svg>';
+  }
+
+  function timeStr(ts) {
+    const d = new Date(ts);
+    const p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+  }
+
+  /* ================= 状态 ================= */
+  function emptyRarityMap() {
+    const m = {};
+    RARITY_ORDER.forEach(function (r) { m[r] = 0; });
+    return m;
+  }
+  function DEFAULT_STATE() {
+    const byCrate = {};
+    CRATES.forEach(function (c) {
+      byCrate[c.id] = { opens: 0, spent: 0, byRarity: emptyRarityMap() };
+    });
+    return {
+      balance: START_BALANCE,
+      pityLegend: 0,
+      inventory: {},
+      history: [],
+      stats: {
+        opens: 0, spent: 0, byRarity: emptyRarityMap(),
+        byCrate: byCrate,
+        triggers: { legend: 0, tenRare: 0 }
+      },
+      sound: true,
+      skip: false,
+      selected: 'c2'
+    };
+  }
+
+  function loadState() {
+    const base = DEFAULT_STATE();
+    let raw = null;
+    try { raw = localStorage.getItem(SAVE_KEY); } catch (e) { raw = null; }
+    if (!raw) return base;
+    let saved;
+    try { saved = JSON.parse(raw); } catch (e) { return base; }
+    if (!saved || typeof saved !== 'object') return base;
+
+    base.balance = typeof saved.balance === 'number' && saved.balance >= 0 ? saved.balance : base.balance;
+    base.pityLegend = typeof saved.pityLegend === 'number' ? clamp(saved.pityLegend, 0, PITY_LEGEND - 1) : 0;
+    base.sound = saved.sound !== false;
+    base.skip = !!saved.skip;
+    if (CRATES.some(function (c) { return c.id === saved.selected; })) base.selected = saved.selected;
+
+    if (saved.inventory && typeof saved.inventory === 'object') {
+      Object.keys(saved.inventory).forEach(function (id) {
+        if (ITEMS[id] && saved.inventory[id] > 0) base.inventory[id] = Math.floor(saved.inventory[id]);
+      });
+    }
+    if (Array.isArray(saved.history)) {
+      base.history = saved.history.filter(function (h) {
+        return h && Array.isArray(h.ids) && h.ids.every(function (id) { return ITEMS[id]; });
+      }).slice(0, MAX_HISTORY);
+    }
+    if (saved.stats && typeof saved.stats === 'object') {
+      const s = saved.stats;
+      base.stats.opens = s.opens || 0;
+      base.stats.spent = s.spent || 0;
+      if (s.byRarity) RARITY_ORDER.forEach(function (r) { base.stats.byRarity[r] = s.byRarity[r] || 0; });
+      if (s.byCrate) CRATES.forEach(function (c) {
+        const src = s.byCrate[c.id];
+        if (!src) return;
+        base.stats.byCrate[c.id].opens = src.opens || 0;
+        base.stats.byCrate[c.id].spent = src.spent || 0;
+        if (src.byRarity) RARITY_ORDER.forEach(function (r) {
+          base.stats.byCrate[c.id].byRarity[r] = src.byRarity[r] || 0;
+        });
+      });
+      if (s.triggers) {
+        base.stats.triggers.legend = s.triggers.legend || 0;
+        base.stats.triggers.tenRare = s.triggers.tenRare || 0;
+      }
+    }
+    return base;
+  }
+
+  let state = loadState();
+
+  function persist() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) { /* 隐私模式下降级 */ }
+  }
+
+  /* ================= 音效（WebAudio 合成，无外部文件） ================= */
+  const Sound = {
+    ctx: null,
+    ensure: function () {
+      if (!state.sound) return null;
+      try {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume().catch(function () {});
+        return this.ctx;
+      } catch (e) { return null; }
+    },
+    tone: function (freq, dur, type, vol, delay, slideTo) {
+      if (!state.sound) return;
+      const ctx = this.ensure();
+      if (!ctx) return;
+      try {
+        const t0 = ctx.currentTime + (delay || 0);
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, t0);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(vol || 0.06, t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.connect(g).connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.03);
+      } catch (e) { /* 无音频设备时静默 */ }
+    },
+    click: function () { this.tone(560, 0.06, 'triangle', 0.045); },
+    charge: function () { this.tone(180, 0.55, 'sawtooth', 0.022, 0, 520); },
+    burst: function (rarity) {
+      const rank = RARITIES[rarity].rank;
+      this.tone(240 + rank * 40, 0.28, 'triangle', 0.07, 0, 900 + rank * 120);
+      this.tone(90, 0.22, 'sine', 0.05, 0.02);
+    },
+    reveal: function (rarity) {
+      const rank = RARITIES[rarity].rank;
+      if (rank <= 1) { this.tone(440 + rank * 80, 0.06, 'square', 0.025); return; }
+      this.tone(620 + rank * 90, 0.16, 'triangle', 0.05);
+      if (rank >= 3) this.tone(920 + rank * 100, 0.24, 'sine', 0.045, 0.07);
+    },
+    fanfare: function () {
+      const notes = [523, 659, 784, 1046, 1318];
+      const self = this;
+      notes.forEach(function (f, i) {
+        self.tone(f, 0.34, 'triangle', 0.05, 0.12 + i * 0.09);
+      });
+      self.tone(196, 0.8, 'sine', 0.035, 0.1);
+    },
+    coin: function () { this.tone(880, 0.09, 'square', 0.04); this.tone(1320, 0.12, 'square', 0.03, 0.07); }
+  };
+
+  /* ================= 抽取逻辑 ================= */
+  function drawItem(crate, minRank) {
+    const list = [];
+    let sum = 0;
+    Object.keys(crate.items).forEach(function (id) {
+      const it = ITEMS[id];
+      if (RARITIES[it.rarity].rank >= (minRank || 0)) {
+        list.push([id, crate.items[id]]);
+        sum += crate.items[id];
+      }
+    });
+    if (!list.length) return Object.keys(crate.items)[0];
+    let x = Math.random() * sum;
+    for (let i = 0; i < list.length; i++) {
+      x -= list[i][1];
+      if (x < 0) return list[i][0];
+    }
+    return list[list.length - 1][0];
+  }
+
+  /* 一次抽取序列；pity 为可变计数器对象 */
+  function pullBatch(crate, count, pity, usePity) {
+    const ids = [];
+    const triggers = { legend: 0, tenRare: 0 };
+    let hasRarePlus = false;
+    for (let i = 0; i < count; i++) {
+      let forceLegend = false;
+      if (usePity && pity.legend >= PITY_LEGEND - 1) {
+        forceLegend = true;
+      }
+      let id = drawItem(crate, forceLegend ? 4 : 0);
+      if (forceLegend) triggers.legend++;
+      if (count === 10 && i === 9 && !hasRarePlus && RARITIES[ITEMS[id].rarity].rank < 2) {
+        id = drawItem(crate, 2);
+        triggers.tenRare++;
+      }
+      const rarity = ITEMS[id].rarity;
+      if (rarity === 'legend') pity.legend = 0;
+      else if (usePity) pity.legend++;
+      if (RARITIES[rarity].rank >= 2) hasRarePlus = true;
+      ids.push(id);
+    }
+    return { ids: ids, triggers: triggers };
+  }
+
+  /* ================= 舞台与动画 ================= */
+  let mode = 'idle';
+  let busy = false;
+  let lastCount = 1;
+  let seqTimers = [];
+  let currentBatch = null;
+  let currentCrateRef = null;
+  let currentCount = 1;
+
+  function clearSeq() {
+    seqTimers.forEach(function (t) { clearTimeout(t); });
+    seqTimers = [];
+  }
+  function later(fn, ms) {
+    const t = setTimeout(fn, ms);
+    seqTimers.push(t);
+    return t;
+  }
+
+  function currentCrate() { return crateById(state.selected); }
+
+  function requestOpen(count) {
+    if (busy) return;
+    clearSeq();
+    const crate = currentCrate();
+    const cost = crate.price * count;
+    if (state.balance < cost) {
+      toast('余额不足：需要 ' + fmt(cost) + ' 星币，当前 ' + fmt(state.balance) + ' 星币');
+      openModal();
+      return;
+    }
+    busy = true;
+    lastCount = count;
+    state.balance -= cost;
+    const pity = { legend: state.pityLegend };
+    const batch = pullBatch(crate, count, pity, true);
+    state.pityLegend = pity.legend;
+    applyResults(crate, batch, cost);
+    playOpen(crate, batch, count);
+  }
+
+  function applyResults(crate, batch, cost) {
+    const n = batch.ids.length;
+    state.stats.opens += n;
+    state.stats.spent += cost;
+    state.stats.triggers.legend += batch.triggers.legend;
+    state.stats.triggers.tenRare += batch.triggers.tenRare;
+    const bc = state.stats.byCrate[crate.id];
+    bc.opens += n;
+    bc.spent += cost;
+    batch.ids.forEach(function (id) {
+      const r = ITEMS[id].rarity;
+      state.stats.byRarity[r]++;
+      bc.byRarity[r]++;
+      state.inventory[id] = (state.inventory[id] || 0) + 1;
+    });
+    state.history.unshift({ t: Date.now(), c: crate.id, ids: batch.ids.slice() });
+    if (state.history.length > MAX_HISTORY) state.history.length = MAX_HISTORY;
+    persist();
+    renderBalance();
+    renderCrates();
+    renderPity();
+    renderBag();
+    renderHistory();
+    renderStats();
+  }
+
+  function topOf(items) {
+    return items.reduce(function (a, b) {
+      return RARITIES[b.rarity].rank > RARITIES[a.rarity].rank ? b : a;
+    });
+  }
+
+  function playOpen(crate, batch, count) {
+    const items = batch.ids.map(function (id) { return ITEMS[id]; });
+    const top = RARITIES[topOf(items).rarity];
+    currentBatch = batch;
+    currentCrateRef = crate;
+    currentCount = count;
+
+    if (state.skip) {
+      finishOpen(crate, batch, count, true);
+      return;
+    }
+
+    mode = 'anim';
+    $('stageIdle').hidden = true;
+    $('stageResult').hidden = true;
+    $('stageAnim').hidden = false;
+    $('animCrate').innerHTML = crateSVG();
+    $('animCrate').style.setProperty('--accent', crate.accent);
+    $('pillar').style.setProperty('--pc', top.color);
+    $('flash').style.setProperty('--pc', top.color);
+    $('rays').style.setProperty('--pc', top.color);
+    $('legendBanner').classList.remove('show');
+    $('rays').classList.remove('show');
+    $('flash').classList.remove('show');
+    $('pillar').classList.remove('show');
+    const crateEl = $('animCrate');
+    crateEl.classList.remove('shake');
+    void crateEl.offsetWidth;
+    crateEl.classList.add('shake');
+    $('animLabel').textContent = '充能中 · 消耗 ' + fmt(crate.price * count) + ' 星币';
+    Sound.charge();
+
+    const isLegend = top.rank >= 4;
+    later(function () {
+      $('flash').classList.add('show');
+      $('pillar').classList.add('show');
+      $('animLabel').textContent = isLegend ? '传说能量共鸣' : '箱体解构';
+      Sound.burst(topOf(items).rarity);
+      if (isLegend) {
+        $('rays').classList.add('show');
+        $('legendBanner').classList.add('show');
+        Sound.fanfare();
+      }
+    }, 880);
+
+    later(function () {
+      finishOpen(crate, batch, count, false);
+    }, isLegend ? 2300 : 1650);
+  }
+
+  function createCard(item) {
+    const r = RARITIES[item.rarity];
+    const card = document.createElement('div');
+    card.className = 'card rarity-' + item.rarity;
+    card.style.setProperty('--rc', r.color);
+    card.style.setProperty('--rc-soft', r.soft);
+    card.style.setProperty('--rc-bg', r.bg);
+    card.innerHTML =
+      '<div class="card-inner">' +
+        '<div class="card-face card-back"><div class="back-mark">✦</div><small>STELLAR</small></div>' +
+        '<div class="card-face card-front">' +
+          '<div class="card-icon">' + iconSVG(item.icon) + '</div>' +
+          '<div class="card-name">' + item.name + '</div>' +
+          '<div class="card-rarity">' + r.name + '</div>' +
+        '</div>' +
+      '</div>';
+    return card;
+  }
+
+  function spawnSparks(card) {
+    const box = document.createElement('div');
+    box.className = 'sparks';
+    const n = Perf.low ? 8 : 16;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('i');
+      p.style.setProperty('--a', (i * (360 / n)) + 'deg');
+      p.style.setProperty('--d', (52 + Math.random() * 74) + 'px');
+      box.appendChild(p);
+    }
+    card.appendChild(box);
+    setTimeout(function () { box.remove(); }, 1000);
+  }
+
+  function finishOpen(crate, batch, count, instant) {
+    clearSeq();
+    mode = 'result';
+    busy = false;
+    $('stageAnim').hidden = true;
+    $('stageIdle').hidden = true;
+    $('stageResult').hidden = false;
+    $('stageResult').classList.toggle('ten', count === 10);
+
+    const items = batch.ids.map(function (id) { return ITEMS[id]; });
+    const top = RARITIES[topOf(items).rarity];
+    const chips = [];
+    if (batch.triggers.legend) chips.push('传说保底触发');
+    if (batch.triggers.tenRare) chips.push('十连稀有保底触发');
+    $('resultHead').innerHTML =
+      '<span class="rh-label">本次' + (count === 10 ? '十连' : '单开') + ' · ' + crate.name + '</span>' +
+      '<span class="rh-top" style="color:' + top.color + '">最高稀有度 · ' + top.name + '</span>' +
+      chips.map(function (t) { return '<span class="rh-chip">' + t + '</span>'; }).join('') +
+      '<span class="rh-cost">' + count + ' 件 · 消耗 ' + fmt(crate.price * count) + ' 星币</span>';
+
+    const grid = $('resultGrid');
+    grid.className = 'result-grid' + (count === 1 ? ' single' : '') + (instant ? ' instant' : '');
+    grid.innerHTML = '';
+    const cards = items.map(function (it) {
+      const c = createCard(it);
+      grid.appendChild(c);
+      return c;
+    });
+    grid.scrollLeft = 0;
+
+    if (instant) {
+      requestAnimationFrame(function () {
+        cards.forEach(function (c) { c.classList.add('flipped'); });
+      });
+    } else {
+      cards.forEach(function (card, i) {
+        later(function () {
+          card.classList.add('flipped');
+          Sound.reveal(items[i].rarity);
+          if (items[i].rarity === 'legend') spawnSparks(card);
+        }, 100 + i * (count === 1 ? 0 : 145));
+      });
+    }
+  }
+
+  function backToIdle() {
+    clearSeq();
+    busy = false;
+    mode = 'idle';
+    $('stageAnim').hidden = true;
+    $('stageResult').hidden = true;
+    $('stageIdle').hidden = false;
+    $('animCrate').classList.remove('shake');
+    renderStageIdle();
+  }
+
+  /* ================= 渲染 ================= */
+  function renderBalance() {
+    $('balance').textContent = fmt(state.balance);
+    $('modalBalance').textContent = fmt(state.balance);
+    const crate = currentCrate();
+    const need = crate.price;
+    $('stageHint').textContent = state.balance < need ? '余额不足，点击右上角「虚拟充值」' : '';
+  }
+
+  function renderCrates() {
+    $('crateList').innerHTML = CRATES.map(function (c) {
+      const s = crateStats(c);
+      const pct = function (r) { return s.byRarity[r] / s.total * 100; };
+      return '<button class="crate-card' + (c.id === state.selected ? ' active' : '') + '" data-crate="' + c.id + '">' +
+        '<span class="cc-head"><b>' + c.name + '</b><span class="cc-price">' + fmt(c.price) + ' 星币</span></span>' +
+        '<span class="ratebar">' + RARITY_ORDER.map(function (r) {
+          return '<i style="width:' + pct(r).toFixed(3) + '%;background:' + RARITIES[r].color + '"></i>';
+        }).join('') + '</span>' +
+        '<span class="cc-rates">' + RARITY_ORDER.map(function (r) {
+          return '<em style="color:' + RARITIES[r].color + '">' + RARITIES[r].name + ' ' + pct(r).toFixed(1) + '%</em>';
+        }).join('') + '</span>' +
+      '</button>';
+    }).join('');
+  }
+
+  function renderStageIdle() {
+    const crate = currentCrate();
+    $('stage').style.setProperty('--accent', crate.accent);
+    $('stage').style.setProperty('--accent-soft', crate.accentSoft);
+    $('crateArt').innerHTML = crateSVG();
+    $('idleName').textContent = crate.name;
+    $('idleDesc').textContent = crate.desc;
+    $('idleOdds').innerHTML = '传说 <b style="color:' + RARITIES.legend.color + '">' +
+      (rateOf(crate, 'legend') * 100).toFixed(1) + '%</b> · 史诗 <b style="color:' +
+      RARITIES.epic.color + '">' + (rateOf(crate, 'epic') * 100).toFixed(1) + '%</b> · 稀有 <b style="color:' +
+      RARITIES.rare.color + '">' + (rateOf(crate, 'rare') * 100).toFixed(1) + '%</b>';
+    $('cost1').textContent = fmt(crate.price) + ' 星币';
+    $('cost10').textContent = fmt(crate.price * 10) + ' 星币';
+    renderBalance();
+  }
+
+  function renderPity() {
+    const p = clamp(state.pityLegend, 0, PITY_LEGEND);
+    $('pityNum').textContent = p + ' / ' + PITY_LEGEND;
+    $('pityNum').classList.toggle('due', p >= PITY_LEGEND - 1);
+    $('pityFill').style.width = (p / PITY_LEGEND * 100) + '%';
+    $('pityTag').textContent = p >= PITY_LEGEND - 1
+      ? '下一抽必出传说'
+      : '距传说保底 ' + (PITY_LEGEND - p) + ' 抽';
+    $('triggerLine').textContent = '已触发：传说保底 ' + state.stats.triggers.legend +
+      ' 次 · 十连保底 ' + state.stats.triggers.tenRare + ' 次';
+  }
+
+  let bagFilter = 'all';
+  function renderBag() {
+    const ids = Object.keys(state.inventory).filter(function (id) { return state.inventory[id] > 0; });
+    const total = ids.reduce(function (a, id) { return a + state.inventory[id]; }, 0);
+    $('bagMeta').textContent = fmt(total) + ' 件 · ' + ids.length + ' 种';
+
+    const list = ids.map(function (id) {
+      return { id: id, n: state.inventory[id], item: ITEMS[id], rank: RARITIES[ITEMS[id].rarity].rank };
+    }).filter(function (x) {
+      return bagFilter === 'all' || x.item.rarity === bagFilter;
+    }).sort(function (a, b) {
+      if (b.rank !== a.rank) return b.rank - a.rank;
+      return b.n - a.n;
+    });
+
+    $('bagGrid').innerHTML = list.map(function (x) {
+      const r = RARITIES[x.item.rarity];
+      return '<div class="bag-item" style="--rc:' + r.color + ';--rc-soft:' + r.soft + ';--rc-bg:' + r.bg + '">' +
+        '<div class="bag-icon">' + iconSVG(x.item.icon) + '</div>' +
+        '<div class="bag-main"><div class="bag-name">' + x.item.name + '</div>' +
+        '<div class="bag-sub">' + r.name + '</div></div>' +
+        '<div class="bag-count"><small>×</small>' + fmt(x.n) + '</div>' +
+      '</div>';
+    }).join('');
+
+    $('bagEmpty').hidden = list.length > 0;
+    $('bagEmpty').textContent = ids.length === 0 ? '背包空空如也，先去开箱试试。' : '该稀有度下暂无物品。';
+    Array.prototype.forEach.call($('bagFilters').children, function (b) {
+      b.classList.toggle('active', b.dataset.r === bagFilter);
+    });
+  }
+
+  function renderHistory() {
+    $('historyMeta').textContent = '共 ' + state.history.length + ' 条';
+    const rows = state.history.map(function (h) {
+      const crate = crateById(h.c);
+      const items = h.ids.map(function (id) { return ITEMS[id]; });
+      const top = RARITIES[topOf(items).rarity];
+      return '<div class="hrow">' +
+        '<span class="h-time">' + timeStr(h.t) + '</span>' +
+        '<span class="h-crate">' + crate.name + '</span>' +
+        '<span class="h-count">' + h.ids.length + ' 件</span>' +
+        '<span class="h-items">' + items.map(function (it) {
+          const r = RARITIES[it.rarity];
+          return '<span class="hitem" style="--rc:' + r.color + ';--rc-soft:' + r.soft + ';--rc-bg:' + r.bg + '">' +
+            it.name + '</span>';
+        }).join('') + '</span>' +
+        '<span class="h-top" style="color:' + top.color + '">' + top.name + '</span>' +
+      '</div>';
+    }).join('');
+    $('historyList').innerHTML = rows;
+    $('historyEmpty').hidden = state.history.length > 0;
+  }
+
+  function renderStats() {
+    const s = state.stats;
+    const legendCount = s.byRarity.legend;
+    $('statsKpis').innerHTML =
+      '<div class="kpi"><span>总开箱数</span><b>' + fmt(s.opens) + '<small>件</small></b></div>' +
+      '<div class="kpi"><span>总消耗星币</span><b>' + fmt(s.spent) + '</b></div>' +
+      '<div class="kpi"><span>传说出货</span><b style="color:' + RARITIES.legend.color + '">' + fmt(legendCount) + '<small>件</small></b></div>' +
+      '<div class="kpi"><span>稀有及以上</span><b>' + fmt(s.byRarity.rare + s.byRarity.epic + s.byRarity.legend) + '<small>件</small></b></div>';
+
+    const expected = emptyRarityMap();
+    let expectedTotal = 0;
+    CRATES.forEach(function (c) {
+      const o = s.byCrate[c.id] ? s.byCrate[c.id].opens : 0;
+      expectedTotal += o;
+      RARITY_ORDER.forEach(function (r) { expected[r] += o * rateOf(c, r); });
+    });
+
+    $('statsBody').innerHTML = RARITY_ORDER.slice().reverse().map(function (r) {
+      const info = RARITIES[r];
+      const cnt = s.byRarity[r];
+      const actual = s.opens ? cnt / s.opens * 100 : 0;
+      const base = expectedTotal ? expected[r] / expectedTotal * 100 : 0;
+      const diff = actual - base;
+      const cls = !s.opens ? 'zero' : (Math.abs(diff) < 0.01 ? 'zero' : (diff > 0 ? 'up' : 'down'));
+      return '<tr>' +
+        '<td><span style="color:' + info.color + '">' + info.name + '</span></td>' +
+        '<td>' + fmt(cnt) + '</td>' +
+        '<td><div class="rate-cell"><span>' + actual.toFixed(2) + '%</span>' +
+          '<span class="bar"><i style="width:' + clamp(actual, 0, 100).toFixed(1) + '%;background:' + info.color + '"></i></span></div></td>' +
+        '<td>' + base.toFixed(2) + '%</td>' +
+        '<td class="diff ' + cls + '">' + (diff > 0 ? '+' : '') + diff.toFixed(2) + '%</td>' +
+      '</tr>';
+    }).join('');
+
+    const parts = CRATES.map(function (c) {
+      return c.name + ' ' + fmt(s.byCrate[c.id] ? s.byCrate[c.id].opens : 0) + ' 抽';
+    }).join(' / ');
+    $('statsNote').textContent = s.opens
+      ? '分布来源：' + parts + '。公示基础率按各箱体开箱次数加权；含保底的综合概率会略高于基础率（传说档更明显），属规则设计内的预期偏差。'
+      : '暂无数据：先开几次箱，这里会显示实际出货率与公示概率的对比。';
+  }
+
+  let rateCrateId = 'c1';
+  function renderRates() {
+    $('rateCrates').innerHTML = CRATES.map(function (c) {
+      return '<button class="chip' + (c.id === rateCrateId ? ' active' : '') + '" data-rate="' + c.id + '">' +
+        c.name + '</button>';
+    }).join('');
+
+    const crate = crateById(rateCrateId);
+    const s = crateStats(crate);
+    const summary = '<div class="rate-summary">' + RARITY_ORDER.slice().reverse().map(function (r) {
+      const info = RARITIES[r];
+      const w = s.byRarity[r];
+      return '<div class="rs-cell" style="--rc:' + info.color + ';--rc-soft:' + info.soft + ';--rc-bg:' + info.bg + '">' +
+        '<i></i><span>' + info.name + '</span>' +
+        '<b>' + (w / s.total * 100).toFixed(1) + '%</b>' +
+        '<em>权重 ' + w + '</em>' +
+      '</div>';
+    }).join('') + '</div>';
+
+    const itemRows = Object.keys(crate.items).slice().sort(function (a, b) {
+      return RARITIES[ITEMS[b].rarity].rank - RARITIES[ITEMS[a].rarity].rank;
+    }).map(function (id) {
+      const it = ITEMS[id];
+      const r = RARITIES[it.rarity];
+      const w = crate.items[id];
+      return '<div class="rate-item" style="--rc:' + r.color + '">' +
+        '<span class="ri-icon">' + iconSVG(it.icon) + '</span>' +
+        '<span class="ri-name">' + it.name + '</span>' +
+        '<span class="ri-rarity">' + r.name + '</span>' +
+        '<span class="ri-weight">权重 ' + w + '</span>' +
+        '<span class="ri-pct">' + (w / s.total * 100).toFixed(2) + '%</span>' +
+      '</div>';
+    }).join('');
+
+    $('ratesBody').innerHTML = summary +
+      '<details class="rate-detail"><summary>' + crate.name + ' · 每件物品权重明细（' +
+      Object.keys(crate.items).length + ' 件）</summary>' +
+      '<div class="rate-items">' + itemRows + '</div></details>';
+  }
+
+  function renderAll() {
+    $('btnSound').textContent = '音效：' + (state.sound ? '开' : '关');
+    $('btnSound').classList.toggle('off', !state.sound);
+    $('skipAnim').checked = state.skip;
+    renderCrates();
+    renderStageIdle();
+    renderPity();
+    renderBag();
+    renderHistory();
+    renderStats();
+    renderRates();
+  }
+
+  /* ================= 交互 ================= */
+  const toastEl = $('toast');
+  let toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2400);
+  }
+
+  function selectCrate(id) {
+    if (state.selected === id) return;
+    state.selected = id;
+    persist();
+    backToIdle();
+    renderCrates();
+    renderStageIdle();
+    Sound.click();
+  }
+
+  $('crateList').addEventListener('click', function (e) {
+    const card = e.target.closest('.crate-card');
+    if (card) selectCrate(card.dataset.crate);
+  });
+
+  /* 误触防护：页面滚动、多指操作时不触发开箱 */
+  let tapStart = null;
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) { tapStart = null; return; }
+    tapStart = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now(), moved: false };
+  }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    if (!tapStart || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - tapStart.x;
+    const dy = e.touches[0].clientY - tapStart.y;
+    if (dx * dx + dy * dy > 144) tapStart.moved = true;
+  }, { passive: true });
+  function tapOk() {
+    if (!tapStart) return true;
+    const ok = !tapStart.moved && (Date.now() - tapStart.t) < 1200;
+    tapStart = null;
+    return ok;
+  }
+  function bindOpen(id, count) {
+    $(id).addEventListener('click', function () {
+      if (!tapOk()) return;
+      Sound.click();
+      requestOpen(count);
+    });
+  }
+  bindOpen('btnOpen1', 1);
+  bindOpen('btnOpen10', 10);
+  bindOpen('btnAgain1', 1);
+  bindOpen('btnAgain10', 10);
+  $('btnBack').addEventListener('click', function () { Sound.click(); backToIdle(); });
+  $('btnSkip').addEventListener('click', function () {
+    if (mode !== 'anim' || !currentBatch || !currentCrateRef) return;
+    // 直接展示已抽出的结果，不重新抽取
+    finishOpen(currentCrateRef, currentBatch, currentCount, true);
+  });
+
+  $('skipAnim').addEventListener('change', function (e) {
+    state.skip = e.target.checked;
+    persist();
+    toast(state.skip ? '已开启跳过动画：结果将直接展示' : '已关闭跳过动画');
+  });
+
+  $('btnSound').addEventListener('click', function () {
+    state.sound = !state.sound;
+    persist();
+    $('btnSound').textContent = '音效：' + (state.sound ? '开' : '关');
+    $('btnSound').classList.toggle('off', !state.sound);
+    if (state.sound) Sound.click();
+  });
+
+  $('btnRecharge').addEventListener('click', function () { Sound.click(); openModal(); });
+  $('modalClose').addEventListener('click', closeModal);
+  $('modal').addEventListener('click', function (e) {
+    if (e.target === $('modal')) closeModal();
+  });
+
+  function openModal() {
+    $('modal').hidden = false;
+    $('modalBalance').textContent = fmt(state.balance);
+  }
+  function closeModal() { $('modal').hidden = true; }
+
+  function addCoins(n, silent) {
+    if (!n || n <= 0) return state.balance;
+    state.balance += n;
+    persist();
+    renderBalance();
+    $('modalBalance').textContent = fmt(state.balance);
+    if (!silent) toast('已到账 ' + fmt(n) + ' 星币（虚拟，无真实交易）');
+    return state.balance;
+  }
+
+  TIERS.forEach(function (t) {
+    const b = document.createElement('button');
+    b.className = 'tier';
+    b.innerHTML = '<b>' + fmt(t.coin) + '</b><span>星币</span><em>示意 ' + t.yuan + ' 元</em>';
+    b.addEventListener('click', function () { Sound.coin(); addCoins(t.coin); });
+    $('tiers').appendChild(b);
+  });
+
+  $('freeClaim').addEventListener('click', function () { Sound.coin(); addCoins(100); });
+
+  $('quickTiers').addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-coin]');
+    if (!btn) return;
+    Sound.coin();
+    addCoins(Number(btn.dataset.coin));
+  });
+
+  let resetArmed = false;
+  let resetTimer = null;
+  $('btnReset').addEventListener('click', function () {
+    if (!resetArmed) {
+      resetArmed = true;
+      $('btnReset').textContent = '确认重置？';
+      $('btnReset').classList.add('armed');
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(function () {
+        resetArmed = false;
+        $('btnReset').textContent = '重置存档';
+        $('btnReset').classList.remove('armed');
+      }, 3200);
+      Sound.click();
+      return;
+    }
+    clearTimeout(resetTimer);
+    resetArmed = false;
+    $('btnReset').textContent = '重置存档';
+    $('btnReset').classList.remove('armed');
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+    state = DEFAULT_STATE();
+    persist();
+    backToIdle();
+    renderAll();
+    toast('存档已重置');
+  });
+
+  $('tabs').addEventListener('click', function (e) {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    const name = tab.dataset.tab;
+    Array.prototype.forEach.call($('tabs').querySelectorAll('.tab'), function (t) {
+      t.classList.toggle('active', t === tab);
+    });
+    ['bag', 'history', 'stats', 'rates'].forEach(function (k) {
+      $('pane-' + k).classList.toggle('active', k === name);
+    });
+    Sound.click();
+  });
+
+  $('bagFilters').addEventListener('click', function (e) {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    bagFilter = chip.dataset.r;
+    renderBag();
+  });
+
+  $('rateCrates').addEventListener('click', function (e) {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    rateCrateId = chip.dataset.rate;
+    renderRates();
+  });
+
+  /* ================= 对外测试接口（不参与 UI） ================= */
+  function simulate(crateId, n, opts) {
+    opts = opts || {};
+    const crate = crateById(crateId);
+    const usePity = opts.pity !== false;
+    const batchSize = Math.max(1, opts.batch || 1);
+    const pity = { legend: 0 };
+    const counts = emptyRarityMap();
+    const triggers = { legend: 0, tenRare: 0 };
+    const seq = [];
+    let total = 0;
+    for (let i = 0; i < n; i += batchSize) {
+      const size = Math.min(batchSize, n - i);
+      const b = pullBatch(crate, size, pity, usePity);
+      b.ids.forEach(function (id) {
+        counts[ITEMS[id].rarity]++;
+        seq.push(ITEMS[id].rarity);
+      });
+      triggers.legend += b.triggers.legend;
+      triggers.tenRare += b.triggers.tenRare;
+      total += size;
+    }
+    return { total: total, counts: counts, triggers: triggers, seq: seq };
+  }
+
+  window.__sim = {
+    state: function () { return JSON.parse(JSON.stringify(state)); },
+    simulate: simulate,
+    open: function (crateId, n, batchSize) {
+      const crate = crateById(crateId);
+      const size = Math.max(1, batchSize || 1);
+      const cost = crate.price * n;
+      if (state.balance < cost) return { error: 'insufficient', balance: state.balance, cost: cost };
+      state.balance -= cost;
+      const ids = [];
+      const triggers = { legend: 0, tenRare: 0 };
+      const pity = { legend: state.pityLegend };
+      for (let i = 0; i < n; i += size) {
+        const s = Math.min(size, n - i);
+        const b = pullBatch(crate, s, pity, true);
+        ids.push.apply(ids, b.ids);
+        triggers.legend += b.triggers.legend;
+        triggers.tenRare += b.triggers.tenRare;
+      }
+      state.pityLegend = pity.legend;
+      applyResults(crate, { ids: ids, triggers: triggers }, cost);
+      return { ok: true, opens: ids.length, triggers: triggers, balance: state.balance };
+    },
+    addCoins: function (n) { return addCoins(n, true); },
+    setPerf: function (on) {
+      if (on) Perf.enter(true);
+      else { Perf.low = false; Perf._fpsBad = 0; document.body.classList.remove('perf-low'); }
+      return Perf.low;
+    },
+    perf: function () {
+      return {
+        low: Perf.low,
+        deviceScore: Perf.device(),
+        dpr: window.devicePixelRatio || 1,
+        cores: navigator.hardwareConcurrency || 0
+      };
+    },
+    setPity: function (n) {
+      state.pityLegend = clamp(Math.floor(n), 0, PITY_LEGEND - 1);
+      persist();
+      renderPity();
+      return state.pityLegend;
+    },
+    reset: function () { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} location.reload(); }
+  };
+
+  /* ================= 启动 ================= */
+  renderAll();
+  if (state.skip) $('skipAnim').checked = true;
+  detectLowPerf();
+  window.__appReady = true;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+{
+  "devices": [
+    {
+      "label": "375x667",
+      "perf": {
+        "nav": {
+          "domContentLoaded": 32,
+          "load": 34,
+          "firstPaint": 128,
+          "firstContentfulPaint": 128,
+          "heapMB": 9.5
+        },
+        "fps": {
+          "normal": {
+            "frames": 97,
+            "ms": 1611,
+            "fps": 60.2,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          },
+          "low": {
+            "frames": 97,
+            "ms": 1610,
+            "fps": 60.3,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          }
+        }
+      },
+      "checks": [
+        {
+          "name": "375x667 无横向溢出",
+          "pass": true,
+          "detail": "scrollW=375 innerW=375 bodyW=375"
+        },
+        {
+          "name": "375x667 首屏舞台内容不裁切",
+          "pass": true,
+          "detail": "idle={\"w\":353,\"h\":385,\"l\":11,\"r\":364,\"t\":122,\"b\":507} stageH=387 topbarH=111"
+        },
+        {
+          "name": "375x667 关键控件≥44×44",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "375x667 合规文案完整可见",
+          "pass": true,
+          "detail": "{\"w\":251,\"h\":41,\"l\":114,\"r\":365,\"t\":60,\"b\":101}"
+        },
+        {
+          "name": "375x667 滑动后不误触发开箱",
+          "pass": true,
+          "detail": "{\"before\":0,\"after\":0,\"busy\":true}"
+        },
+        {
+          "name": "375x667 跳过动画按钮≥44 且在舞台内",
+          "pass": true,
+          "detail": "{\"w\":85,\"h\":44,\"visible\":true}"
+        },
+        {
+          "name": "375x667 十连 10 张全部翻开",
+          "pass": true,
+          "detail": "cards=10 flipped=10"
+        },
+        {
+          "name": "375x667 十连卡片不越出舞台",
+          "pass": true,
+          "detail": "cardH=166 stageH=387"
+        },
+        {
+          "name": "375x667 十连结果可横滑看全",
+          "pass": true,
+          "detail": "gridW=353 scrollW=1385 reachLast=true"
+        },
+        {
+          "name": "375x667 十连后无横向溢出",
+          "pass": true,
+          "detail": "docW=375 iw=375"
+        },
+        {
+          "name": "375x667 低性能模式生效（去射线/减粒子）",
+          "pass": true,
+          "detail": "{\"low\":true,\"raysHidden\":true,\"sparks\":0,\"perf\":{\"low\":true,\"deviceScore\":2,\"dpr\":2,\"cores\":32}}"
+        },
+        {
+          "name": "375x667 概率公示可展开 15 件权重",
+          "pass": true,
+          "detail": "items=15 open=true"
+        },
+        {
+          "name": "375x667 概率公示无横向溢出/可滚动到底",
+          "pass": true,
+          "detail": "paneW=353 paneSW=353 over=[] last=1876 docH=1913"
+        },
+        {
+          "name": "375x667 公示箱体筛选按钮≥44 高",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "375x667 背包双列且稀有度筛选可点",
+          "pass": true,
+          "detail": "items=11 rows=6 perRarity={\"common\":3,\"fine\":3,\"rare\":2,\"epic\":2,\"legend\":1} sum=11"
+        },
+        {
+          "name": "375x667 背包可滚动到底不溢出",
+          "pass": true,
+          "detail": "bagBottom=1703 docH=1726 docW=375"
+        },
+        {
+          "name": "375x667 充值弹层在视口内且可滚到底",
+          "pass": true,
+          "detail": "w=355 h=423 scrollable=false bottom=true"
+        },
+        {
+          "name": "375x667 弹层关闭按钮≥44×44",
+          "pass": true,
+          "detail": "44x44"
+        },
+        {
+          "name": "375x667 横屏切换无横向溢出且不误触",
+          "pass": true,
+          "detail": "{\"iw\":667,\"sw\":667,\"stageW\":647,\"stageH\":386,\"btn\":{\"w\":176,\"h\":56},\"opens\":30}"
+        },
+        {
+          "name": "375x667 控制台零报错",
+          "pass": true,
+          "detail": "无"
+        }
+      ]
+    },
+    {
+      "label": "390x844",
+      "perf": {
+        "nav": {
+          "domContentLoaded": 14,
+          "load": 17,
+          "firstPaint": 36,
+          "firstContentfulPaint": 36,
+          "heapMB": 9.5
+        },
+        "fps": {
+          "normal": {
+            "frames": 97,
+            "ms": 1601,
+            "fps": 60.6,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          },
+          "low": {
+            "frames": 97,
+            "ms": 1609,
+            "fps": 60.3,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          }
+        }
+      },
+      "checks": [
+        {
+          "name": "390x844 无横向溢出",
+          "pass": true,
+          "detail": "scrollW=390 innerW=390 bodyW=390"
+        },
+        {
+          "name": "390x844 首屏舞台内容不裁切",
+          "pass": true,
+          "detail": "idle={\"w\":368,\"h\":478,\"l\":11,\"r\":379,\"t\":122,\"b\":600} stageH=480 topbarH=111"
+        },
+        {
+          "name": "390x844 关键控件≥44×44",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "390x844 合规文案完整可见",
+          "pass": true,
+          "detail": "{\"w\":266,\"h\":41,\"l\":114,\"r\":380,\"t\":60,\"b\":101}"
+        },
+        {
+          "name": "390x844 滑动后不误触发开箱",
+          "pass": true,
+          "detail": "{\"before\":30,\"after\":30,\"busy\":true}"
+        },
+        {
+          "name": "390x844 跳过动画按钮≥44 且在舞台内",
+          "pass": true,
+          "detail": "{\"w\":85,\"h\":44,\"visible\":true}"
+        },
+        {
+          "name": "390x844 十连 10 张全部翻开",
+          "pass": true,
+          "detail": "cards=10 flipped=10"
+        },
+        {
+          "name": "390x844 十连卡片不越出舞台",
+          "pass": true,
+          "detail": "cardH=166 stageH=480"
+        },
+        {
+          "name": "390x844 十连结果可横滑看全",
+          "pass": true,
+          "detail": "gridW=368 scrollW=1385 reachLast=true"
+        },
+        {
+          "name": "390x844 十连后无横向溢出",
+          "pass": true,
+          "detail": "docW=390 iw=390"
+        },
+        {
+          "name": "390x844 低性能模式生效（去射线/减粒子）",
+          "pass": true,
+          "detail": "{\"low\":true,\"raysHidden\":true,\"sparks\":0,\"perf\":{\"low\":true,\"deviceScore\":2,\"dpr\":3,\"cores\":32}}"
+        },
+        {
+          "name": "390x844 概率公示可展开 15 件权重",
+          "pass": true,
+          "detail": "items=15 open=true"
+        },
+        {
+          "name": "390x844 概率公示无横向溢出/可滚动到底",
+          "pass": true,
+          "detail": "paneW=368 paneSW=368 over=[] last=1969 docH=2006"
+        },
+        {
+          "name": "390x844 公示箱体筛选按钮≥44 高",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "390x844 背包双列且稀有度筛选可点",
+          "pass": true,
+          "detail": "items=12 rows=6 perRarity={\"common\":3,\"fine\":3,\"rare\":2,\"epic\":3,\"legend\":1} sum=12"
+        },
+        {
+          "name": "390x844 背包可滚动到底不溢出",
+          "pass": true,
+          "detail": "bagBottom=1746 docH=1769 docW=390"
+        },
+        {
+          "name": "390x844 充值弹层在视口内且可滚到底",
+          "pass": true,
+          "detail": "w=370 h=423 scrollable=false bottom=true"
+        },
+        {
+          "name": "390x844 弹层关闭按钮≥44×44",
+          "pass": true,
+          "detail": "44x44"
+        },
+        {
+          "name": "390x844 控制台零报错",
+          "pass": true,
+          "detail": "无"
+        }
+      ]
+    },
+    {
+      "label": "360x800",
+      "perf": {
+        "nav": {
+          "domContentLoaded": 14,
+          "load": 16,
+          "firstPaint": 36,
+          "firstContentfulPaint": 36,
+          "heapMB": 9.5
+        },
+        "fps": {
+          "normal": {
+            "frames": 97,
+            "ms": 1606,
+            "fps": 60.4,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          },
+          "low": {
+            "frames": 98,
+            "ms": 1615,
+            "fps": 60.7,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          }
+        }
+      },
+      "checks": [
+        {
+          "name": "360x800 无横向溢出",
+          "pass": true,
+          "detail": "scrollW=360 innerW=360 bodyW=360"
+        },
+        {
+          "name": "360x800 首屏舞台内容不裁切",
+          "pass": true,
+          "detail": "idle={\"w\":338,\"h\":462,\"l\":11,\"r\":349,\"t\":169,\"b\":631} stageH=464 topbarH=158"
+        },
+        {
+          "name": "360x800 关键控件≥44×44",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "360x800 合规文案完整可见",
+          "pass": true,
+          "detail": "{\"w\":340,\"h\":41,\"l\":10,\"r\":350,\"t\":108,\"b\":149}"
+        },
+        {
+          "name": "360x800 滑动后不误触发开箱",
+          "pass": true,
+          "detail": "{\"before\":50,\"after\":50,\"busy\":true}"
+        },
+        {
+          "name": "360x800 跳过动画按钮≥44 且在舞台内",
+          "pass": true,
+          "detail": "{\"w\":85,\"h\":44,\"visible\":true}"
+        },
+        {
+          "name": "360x800 十连 10 张全部翻开",
+          "pass": true,
+          "detail": "cards=10 flipped=10"
+        },
+        {
+          "name": "360x800 十连卡片不越出舞台",
+          "pass": true,
+          "detail": "cardH=166 stageH=464"
+        },
+        {
+          "name": "360x800 十连结果可横滑看全",
+          "pass": true,
+          "detail": "gridW=338 scrollW=1385 reachLast=true"
+        },
+        {
+          "name": "360x800 十连后无横向溢出",
+          "pass": true,
+          "detail": "docW=360 iw=360"
+        },
+        {
+          "name": "360x800 低性能模式生效（去射线/减粒子）",
+          "pass": true,
+          "detail": "{\"low\":true,\"raysHidden\":true,\"sparks\":0,\"perf\":{\"low\":true,\"deviceScore\":2,\"dpr\":3,\"cores\":32}}"
+        },
+        {
+          "name": "360x800 概率公示可展开 15 件权重",
+          "pass": true,
+          "detail": "items=15 open=true"
+        },
+        {
+          "name": "360x800 概率公示无横向溢出/可滚动到底",
+          "pass": true,
+          "detail": "paneW=338 paneSW=338 over=[] last=2000 docH=2037"
+        },
+        {
+          "name": "360x800 公示箱体筛选按钮≥44 高",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "360x800 背包双列且稀有度筛选可点",
+          "pass": true,
+          "detail": "items=14 rows=7 perRarity={\"common\":3,\"fine\":3,\"rare\":3,\"epic\":3,\"legend\":2} sum=14"
+        },
+        {
+          "name": "360x800 背包可滚动到底不溢出",
+          "pass": true,
+          "detail": "bagBottom=1887 docH=1910 docW=360"
+        },
+        {
+          "name": "360x800 充值弹层在视口内且可滚到底",
+          "pass": true,
+          "detail": "w=340 h=441 scrollable=false bottom=true"
+        },
+        {
+          "name": "360x800 弹层关闭按钮≥44×44",
+          "pass": true,
+          "detail": "44x44"
+        },
+        {
+          "name": "360x800 控制台零报错",
+          "pass": true,
+          "detail": "无"
+        }
+      ]
+    },
+    {
+      "label": "414x896",
+      "perf": {
+        "nav": {
+          "domContentLoaded": 14,
+          "load": 17,
+          "firstPaint": 36,
+          "firstContentfulPaint": 36,
+          "heapMB": 9.5
+        },
+        "fps": {
+          "normal": {
+            "frames": 97,
+            "ms": 1600,
+            "fps": 60.6,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          },
+          "low": {
+            "frames": 98,
+            "ms": 1616,
+            "fps": 60.6,
+            "longFrames": 0,
+            "longTasks": [],
+            "heapMB": 9.5
+          }
+        }
+      },
+      "checks": [
+        {
+          "name": "414x896 无横向溢出",
+          "pass": true,
+          "detail": "scrollW=414 innerW=414 bodyW=414"
+        },
+        {
+          "name": "414x896 首屏舞台内容不裁切",
+          "pass": true,
+          "detail": "idle={\"w\":392,\"h\":478,\"l\":11,\"r\":403,\"t\":122,\"b\":600} stageH=480 topbarH=111"
+        },
+        {
+          "name": "414x896 关键控件≥44×44",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "414x896 合规文案完整可见",
+          "pass": true,
+          "detail": "{\"w\":290,\"h\":41,\"l\":114,\"r\":404,\"t\":60,\"b\":101}"
+        },
+        {
+          "name": "414x896 滑动后不误触发开箱",
+          "pass": true,
+          "detail": "{\"before\":70,\"after\":70,\"busy\":true}"
+        },
+        {
+          "name": "414x896 跳过动画按钮≥44 且在舞台内",
+          "pass": true,
+          "detail": "{\"w\":85,\"h\":44,\"visible\":true}"
+        },
+        {
+          "name": "414x896 十连 10 张全部翻开",
+          "pass": true,
+          "detail": "cards=10 flipped=10"
+        },
+        {
+          "name": "414x896 十连卡片不越出舞台",
+          "pass": true,
+          "detail": "cardH=166 stageH=480"
+        },
+        {
+          "name": "414x896 十连结果可横滑看全",
+          "pass": true,
+          "detail": "gridW=392 scrollW=1385 reachLast=true"
+        },
+        {
+          "name": "414x896 十连后无横向溢出",
+          "pass": true,
+          "detail": "docW=414 iw=414"
+        },
+        {
+          "name": "414x896 低性能模式生效（去射线/减粒子）",
+          "pass": true,
+          "detail": "{\"low\":true,\"raysHidden\":true,\"sparks\":0,\"perf\":{\"low\":true,\"deviceScore\":2,\"dpr\":2,\"cores\":32}}"
+        },
+        {
+          "name": "414x896 概率公示可展开 15 件权重",
+          "pass": true,
+          "detail": "items=15 open=true"
+        },
+        {
+          "name": "414x896 概率公示无横向溢出/可滚动到底",
+          "pass": true,
+          "detail": "paneW=392 paneSW=392 over=[] last=1787 docH=1824"
+        },
+        {
+          "name": "414x896 公示箱体筛选按钮≥44 高",
+          "pass": true,
+          "detail": "[]"
+        },
+        {
+          "name": "414x896 背包双列且稀有度筛选可点",
+          "pass": true,
+          "detail": "items=14 rows=7 perRarity={\"common\":3,\"fine\":3,\"rare\":3,\"epic\":3,\"legend\":2} sum=14"
+        },
+        {
+          "name": "414x896 背包可滚动到底不溢出",
+          "pass": true,
+          "detail": "bagBottom=1806 docH=1829 docW=414"
+        },
+        {
+          "name": "414x896 充值弹层在视口内且可滚到底",
+          "pass": true,
+          "detail": "w=394 h=423 scrollable=false bottom=true"
+        },
+        {
+          "name": "414x896 弹层关闭按钮≥44×44",
+          "pass": true,
+          "detail": "44x44"
+        },
+        {
+          "name": "414x896 控制台零报错",
+          "pass": true,
+          "detail": "无"
+        }
+      ]
+    }
+  ],
+  "perf": {
+    "375x667": {
+      "nav": {
+        "domContentLoaded": 32,
+        "load": 34,
+        "firstPaint": 128,
+        "firstContentfulPaint": 128,
+        "heapMB": 9.5
+      },
+      "fps": {
+        "normal": {
+          "frames": 97,
+          "ms": 1611,
+          "fps": 60.2,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        },
+        "low": {
+          "frames": 97,
+          "ms": 1610,
+          "fps": 60.3,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        }
+      }
+    },
+    "390x844": {
+      "nav": {
+        "domContentLoaded": 14,
+        "load": 17,
+        "firstPaint": 36,
+        "firstContentfulPaint": 36,
+        "heapMB": 9.5
+      },
+      "fps": {
+        "normal": {
+          "frames": 97,
+          "ms": 1601,
+          "fps": 60.6,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        },
+        "low": {
+          "frames": 97,
+          "ms": 1609,
+          "fps": 60.3,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        }
+      }
+    },
+    "360x800": {
+      "nav": {
+        "domContentLoaded": 14,
+        "load": 16,
+        "firstPaint": 36,
+        "firstContentfulPaint": 36,
+        "heapMB": 9.5
+      },
+      "fps": {
+        "normal": {
+          "frames": 97,
+          "ms": 1606,
+          "fps": 60.4,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        },
+        "low": {
+          "frames": 98,
+          "ms": 1615,
+          "fps": 60.7,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        }
+      }
+    },
+    "414x896": {
+      "nav": {
+        "domContentLoaded": 14,
+        "load": 17,
+        "firstPaint": 36,
+        "firstContentfulPaint": 36,
+        "heapMB": 9.5
+      },
+      "fps": {
+        "normal": {
+          "frames": 97,
+          "ms": 1600,
+          "fps": 60.6,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        },
+        "low": {
+          "frames": 98,
+          "ms": 1616,
+          "fps": 60.6,
+          "longFrames": 0,
+          "longTasks": [],
+          "heapMB": 9.5
+        }
+      }
+    }
+  },
+  "consoleErrors": [
+    {
+      "label": "375x667",
+      "errors": []
+    },
+    {
+      "label": "390x844",
+      "errors": []
+    },
+    {
+      "label": "360x800",
+      "errors": []
+    },
+    {
+      "label": "414x896",
+      "errors": []
+    }
+  ]
+}
