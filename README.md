@@ -1,6 +1,6 @@
 # 星轨开箱模拟器 (Stellar Crate Simulator)
 
-鍦ㄧ嚎璇曠帺锛歨ttps://blackinkvc.github.io/kaibox/
+在线试玩：https://blackinkvc.github.io/kaibox/
 
 单文件、离线可用的开箱模拟网页：演示"开箱 + 概率公示 + 保底 + 虚拟货币"这类玩法的交互与结算逻辑。纯前端，无后端、无账号、无网络请求。
 
